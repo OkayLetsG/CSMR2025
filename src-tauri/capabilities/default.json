@@ -1,0 +1,24 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "opener:default",
+    "core:window:allow-start-dragging",
+    "core:webview:allow-create-webview-window",
+    "sql:default",
+    "sql:allow-execute",
+    "sql:allow-load",
+    "sql:allow-select",
+    "window-state:default",
+    "core:event:allow-emit",
+    "core:event:allow-listen",
+    "core:event:allow-emit-to",
+    "core:event:allow-unlisten"
+  ],
+  "capabilities": [
+    
+  ]
+}
