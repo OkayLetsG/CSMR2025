@@ -15,12 +15,20 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
+            "styles": ["src/styles.css"],
             "outputPath": "dist/csmr2025",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
-            "assets": ["src/assets"]
+            "assets": [
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "node_modules/monaco-editor",
+                "output": "/assets/monaco/"
+              }
+            ]
           },
           "configurations": {
             "production": {
@@ -28,7 +36,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumError": "5mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -49,7 +57,7 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "port": 1420
+            "port": 46669
           },
           "configurations": {
             "production": {

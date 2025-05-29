@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MainsplitterComponent } from './mainsplitter.component';
+import { EditorComponent } from './editor.component';
 
-describe('MainsplitterComponent', () => {
-  let component: MainsplitterComponent;
-  let fixture: ComponentFixture<MainsplitterComponent>;
+describe('EditorComponent', () => {
+  let component: EditorComponent;
+  let fixture: ComponentFixture<EditorComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MainsplitterComponent]
+      imports: [EditorComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(MainsplitterComponent);
+    fixture = TestBed.createComponent(EditorComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

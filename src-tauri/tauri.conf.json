@@ -5,7 +5,7 @@
   "identifier": "com.csmr2025.app",
   "build": {
     "beforeDevCommand": "npm run start",
-    "devUrl": "http://localhost:1420",
+    "devUrl": "http://localhost:46669",
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist/csmr2025/browser"
   },

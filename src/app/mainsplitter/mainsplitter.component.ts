@@ -1,12 +1,21 @@
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
+import { SplitterModule } from "primeng/splitter";
+import { FormsModule } from "@angular/forms";
+import { FoldersComponent } from "./folders/folders.component";
+import { SnippetsComponent } from "./snippets/snippets.component";
+import { EditorComponent } from "./editor/editor.component";
 
 @Component({
-  selector: 'app-mainsplitter',
+  selector: "app-mainsplitter",
   standalone: true,
-  imports: [],
-  templateUrl: './mainsplitter.component.html',
-  styleUrl: './mainsplitter.component.css'
+  imports: [
+    SplitterModule,
+    FormsModule,
+    FoldersComponent,
+    SnippetsComponent,
+    EditorComponent,
+  ],
+  templateUrl: "./mainsplitter.component.html",
+  styleUrl: "./mainsplitter.component.css",
 })
-export class MainsplitterComponent {
-
-}
+export class MainsplitterComponent {}

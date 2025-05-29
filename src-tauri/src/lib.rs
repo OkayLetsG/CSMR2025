@@ -1,5 +1,4 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-
 use tauri_plugin_sql::{Builder, Migration, MigrationKind};
 use tauri::Manager;
 
@@ -20,6 +19,7 @@ pub fn run() {
 									FPARENT_ID INTEGER,
 									FCREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 									FMODIFIED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                    FGUID TEXT NOT NULL,
 									FOREIGN KEY (FPARENT_ID) REFERENCES FOLDERS(FID) ON DELETE CASCADE,
                                     FOREIGN KEY (FPARENT_ID) REFERENCES FOLDERS(FID) ON UPDATE CASCADE
                 )",
@@ -36,6 +36,7 @@ pub fn run() {
 									SFID INTEGER,
                                     SLNAME TEXT,
                                     SDOCS TEXT,
+                                    SGUID TEXT NOT NULL,
 									FOREIGN KEY (SFID) REFERENCES FOLDERS(FID) ON DELETE CASCADE
 				)",
             kind: MigrationKind::Up,
@@ -50,18 +51,19 @@ pub fn run() {
 									FRCONTENT TEXT,
 									FRCREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 									FRMODIFIED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                    FRGUID TEXT NOT NULL,
 									FOREIGN KEY (FRSID) REFERENCES SNIPPETS(SID) ON DELETE CASCADE
 								)",
             kind: MigrationKind::Up,
         }
     ];
     tauri::Builder::default()
-        .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(
             tauri_plugin_sql::Builder::default()
-                .add_migrations("sqlite:csmremasterd_database.db", _migrations)
+                .add_migrations("sqlite:csmremasterd2025_database.db", _migrations)
                 .build(),
         )
+        .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![greet])
