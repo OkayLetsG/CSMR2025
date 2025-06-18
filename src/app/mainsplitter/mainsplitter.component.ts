@@ -13,7 +13,7 @@ import { EditorComponent } from "./editor/editor.component";
     FormsModule,
     FoldersComponent,
     SnippetsComponent,
-    EditorComponent,
+    EditorComponent
   ],
   templateUrl: "./mainsplitter.component.html",
   styleUrl: "./mainsplitter.component.css",
