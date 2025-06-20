@@ -1,6 +1,6 @@
-# Tauri + Angular
+# CSMR (2025)
 
-This template should help get you started developing with Tauri and Angular.
+This Program, will help you to advance your knowledge in the world of Programming!
 
 ## Recommended IDE Setup
 
