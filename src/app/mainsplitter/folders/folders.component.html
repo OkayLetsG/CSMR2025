@@ -1,18 +1,33 @@
-<p-iconField
-    iconPosition="right">
+<div [style]="{ height: '100%', width: '100%' }">
+  <p-iconField iconPosition="right">
     <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
     <input
-        type="text"
-        pInputText
-        placeholder="Search"
-        [(ngModel)]="filterValue"
-        (input)="applyFilter()"
-        [style]="{
-            width: '100%', 
-            fontSize: '15px', 
-            borderRadius: '0px', 
-            border: '0px', 
-            background: 'transparent'
-        }"
-    /> 
-</p-iconField>
+      type="text"
+      pInputText
+      placeholder="Search"
+      [(ngModel)]="filterValue"
+      (input)="applyFilter()"
+      [style]="{
+        width: '100%',
+        fontSize: '15px',
+        borderRadius: '0px',
+        border: '0px',
+        background: 'transparent'
+      }"
+    />
+  </p-iconField>
+  <p-splitButton
+    label="Add Folder"
+    (onClick)="addFolder()"
+    [model]="sbItems"
+    text
+    size="small"
+    [style]="{
+      borderRadius: '0px',
+      border: '0px'
+    }"
+  >
+  </p-splitButton>
+  <p-tree [contextMenu]="cm"> </p-tree>
+  <p-contextMenu #cm [model]="cmItems"></p-contextMenu>
+</div>

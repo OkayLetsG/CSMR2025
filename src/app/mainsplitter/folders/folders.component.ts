@@ -12,6 +12,7 @@ import { DividerModule } from "primeng/divider";
 import { ToastModule } from "primeng/toast";
 import { FloatLabelModule } from "primeng/floatlabel";
 import { DropdownModule } from "primeng/dropdown";
+import { ContextMenuModule } from "primeng/contextmenu";
 import { TreeNode, MessageService, MenuItem } from "primeng/api";
 import { FolderHelperService } from "../../../services/main/folder-helper.service";
 
@@ -32,17 +33,23 @@ import { FolderHelperService } from "../../../services/main/folder-helper.servic
     FloatLabelModule,
     FormsModule,
     DropdownModule,
+    ContextMenuModule
   ],
   templateUrl: "./folders.component.html",
   styleUrl: "./folders.component.css",
+  providers: [MessageService]
 })
 export class FoldersComponent implements OnInit {
   private folderService = inject(FolderHelperService);
   folders: TreeNode[] = [];
   originalFolders: TreeNode[] = [];
+  sbItems: MenuItem[] = [];
+  cmItems: MenuItem[] = [];
   filterValue: any;
 
   ngOnInit(): void {
+    this.setupSplitButton();
+    this.setupContextMenu();
     this.folderService.getFolders();
 
     this.folderService.folders$.subscribe((nodes) => {
@@ -73,5 +80,54 @@ export class FoldersComponent implements OnInit {
         return null;
       })
       .filter(node => node !== null) as TreeNode[];
+  }
+
+  private setupSplitButton() {
+    this.sbItems = [
+      {
+        label: "Move Folders",
+        icon: "pi pi-arrows-alt"
+      },
+      {
+        label: "Add Snippet",
+        icon: "pi pi-file-plus"
+      },
+      {
+        label: "Delete",
+        icon: "pi pi-fw pi-trash"
+      },
+      {
+        label: "Sort Ascending",
+        icon: "pi pi-fw pi-sort-alpha-down"
+      },
+      {
+        label: "Sort Descending",
+        icon: "pi pi-fw pi-sort-alpha-up-alt"
+      }
+    ]
+  }
+
+  private setupContextMenu() {
+    this.cmItems = [
+      {
+        label: "Move Folder",
+        icon: "pi pi-arrows-alt"
+      },
+      {
+        label: "Add Snippet",
+        icon: "pi pi-file-plus"
+      },
+      {
+        label: "Change Properties",
+        icon: "pi pi-fw pi-pencil"
+      },
+      {
+        label: "Delete",
+        icon: "pi pi-fw pi-trash"
+      }
+    ]
+  }
+  addFolder() {
+    
   }
 }
