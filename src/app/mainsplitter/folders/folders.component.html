@@ -17,7 +17,7 @@
 </p-iconField>
 <p-splitButton
   label="Add Folder"
-  (onClick)="addFolder()"
+  (onClick)="globalAddFolder()"
   [model]="sbItems"
   text
   size="small"
@@ -48,8 +48,59 @@
 <p-contextMenu #cm [model]="cmItems"></p-contextMenu>
 
 <p-dialog
-  [header]="''">
+  [header]="DialogTitle"
+  [(visible)]="addFolderDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [style]="{ width: '50rem', height: '25rem', overflow: 'auto' }"
+  [contentStyle]="{ padding: '1.5rem' }"
+  [dismissableMask]="false"
+  [closable]="false"
+  [maximizable]="true"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [resizable]="true"
+>
+  @if(DialogDescription.length > 0) {
+  <p>
+    {{ DialogDescription }}
+  </p>
+  }
+  <div style="display: flex; align-items: center; width: 100%; gap: 1rem;">
+    <p-floatLabel style="flex: 1;">
+      <input
+        type="text"
+        pInputText
+        [(ngModel)]="userAddFolderNameValue"
+        style="width: 100%;" />
+      <label>Folder Name</label>
+    </p-floatLabel>
+    <div style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;">
+      <p-checkbox
+        [(ngModel)]="isAddRootFolder"
+        inputId="rootFolderCheckbox"
+        [binary]="true"
+        (ngModelChange)="onChangeCheckboxRootFolder()">
+      </p-checkbox>
+      <label>Root Folder</label>
+    </div>
+  </div>
 
+  <p-divider></p-divider>
+
+  <p-footer>
+    <p-button
+      label="Cancel"
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="onCancleAddFolder()"
+    ></p-button>
+    <p-button
+      label="Save"
+      icon="pi pi-check"
+      class="p-button-text"
+      (click)="onSaveGlobalAddFolder()"
+    ></p-button>
+  </p-footer>
 </p-dialog>
 
 <p-toast></p-toast>

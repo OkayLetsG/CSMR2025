@@ -43,7 +43,7 @@ import { FolderHelperService } from "../../../services/main/folder-helper.servic
 })
 export class FoldersComponent implements OnInit {
   private folderService = inject(FolderHelperService);
-  private notify = inject(MessageService);
+   notify = inject(MessageService);
   folders: TreeNode[] = [];
   selectedFolder: TreeNode | undefined; 
   originalFolders: TreeNode[] = [];
@@ -52,6 +52,7 @@ export class FoldersComponent implements OnInit {
   filterValue: any;
   addFolderDialogVisible: boolean = false;
   isAddRootFolder: boolean = false;
+  userAddFolderNameValue: string = '';
   DialogTitle: string = '';
   DialogDescription: string = '';
 
@@ -158,14 +159,16 @@ export class FoldersComponent implements OnInit {
       }
     ]
   }
-  public addFolder() {
-    this.showAddFolderDialog();
+  public globalAddFolder() {
+    this.showGlobalAddFolderDialog();
   }
 
-  private showAddFolderDialog() {
-   
+  private showGlobalAddFolderDialog() {
+    this.DialogTitle = 'Create a new Folder';
+    this.DialogDescription = '';
+    this.addFolderDialogVisible = true;
   }
-  public onSaveAddFolder() {
+  public onSaveGlobalAddFolder() {
     
   }
 
@@ -173,6 +176,12 @@ export class FoldersComponent implements OnInit {
     this.DialogDescription = '';
     this.DialogTitle = '';
     this.isAddRootFolder = false;
-    this.addFolderDialogVisible = false;
+    this.addFolderDialogVisible = false; 
+    this.userAddFolderNameValue = '';
+    this.notify.add({ severity: "info", summary: "Information", detail: "Folder creation canceled"});
+    
+  }
+  public onChangeCheckboxRootFolder() {
+    console.log('Checkbox isAddRootFolder',this.isAddRootFolder);
   }
 }
