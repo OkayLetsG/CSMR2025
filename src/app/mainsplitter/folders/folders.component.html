@@ -1,33 +1,55 @@
-<div [style]="{ height: '100%', width: '100%' }">
-  <p-iconField iconPosition="right">
-    <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
-    <input
-      type="text"
-      pInputText
-      placeholder="Search"
-      [(ngModel)]="filterValue"
-      (input)="applyFilter()"
-      [style]="{
-        width: '100%',
-        fontSize: '15px',
-        borderRadius: '0px',
-        border: '0px',
-        background: 'transparent'
-      }"
-    />
-  </p-iconField>
-  <p-splitButton
-    label="Add Folder"
-    (onClick)="addFolder()"
-    [model]="sbItems"
-    text
-    size="small"
+<p-iconField iconPosition="right">
+  <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+  <input
+    type="text"
+    pInputText
+    placeholder="Search"
+    [(ngModel)]="filterValue"
+    (input)="applyFilter()"
     [style]="{
+      width: '100%',
+      fontSize: '15px',
       borderRadius: '0px',
-      border: '0px'
+      border: '0px',
+      background: 'transparent'
     }"
-  >
-  </p-splitButton>
-  <p-tree [contextMenu]="cm"> </p-tree>
-  <p-contextMenu #cm [model]="cmItems"></p-contextMenu>
-</div>
+  />
+</p-iconField>
+<p-splitButton
+  label="Add Folder"
+  (onClick)="addFolder()"
+  [model]="sbItems"
+  text
+  size="small"
+  [style]="{
+    borderRadius: '0px',
+    border: '0px'
+  }"
+>
+</p-splitButton>
+<p-tree
+  [contextMenu]="cm"
+  [value]="folders"
+  filterMode="lenient"
+  selectionMode="single"
+  [(selection)]="selectedFolder"
+  (onNodeSelect)="nodeSelect()"
+  [style]="{
+    height: '85vh',
+    width: '100%',
+    border: '0px',
+    borderRadius: '0px',
+    overflow: 'auto',
+    fontSize: '16px',
+    fontWeight: 'bold'
+  }"
+>
+</p-tree>
+<p-contextMenu #cm [model]="cmItems"></p-contextMenu>
+
+<p-dialog
+  [header]="''">
+
+</p-dialog>
+
+<p-toast></p-toast>

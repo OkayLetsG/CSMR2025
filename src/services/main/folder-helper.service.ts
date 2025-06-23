@@ -244,7 +244,7 @@ export class FolderHelperService {
 
   /**
    * 
-   * @param isFoldersSortedAscending 
+   * @param isFoldersSortedAscending  (true)
    * 
    * Sorts the folders ascended
    */
@@ -257,7 +257,7 @@ export class FolderHelperService {
 
   /**
    * 
-   * @param isFoldersSortedAscending 
+   * @param isFoldersSortedAscending (false)
    * 
    * Sorts the folders descended
    */

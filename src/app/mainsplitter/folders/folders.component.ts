@@ -13,6 +13,7 @@ import { ToastModule } from "primeng/toast";
 import { FloatLabelModule } from "primeng/floatlabel";
 import { DropdownModule } from "primeng/dropdown";
 import { ContextMenuModule } from "primeng/contextmenu";
+import { CheckboxModule } from 'primeng/checkbox';
 import { TreeNode, MessageService, MenuItem } from "primeng/api";
 import { FolderHelperService } from "../../../services/main/folder-helper.service";
 
@@ -33,7 +34,8 @@ import { FolderHelperService } from "../../../services/main/folder-helper.servic
     FloatLabelModule,
     FormsModule,
     DropdownModule,
-    ContextMenuModule
+    ContextMenuModule,
+    CheckboxModule
   ],
   templateUrl: "./folders.component.html",
   styleUrl: "./folders.component.css",
@@ -41,11 +43,17 @@ import { FolderHelperService } from "../../../services/main/folder-helper.servic
 })
 export class FoldersComponent implements OnInit {
   private folderService = inject(FolderHelperService);
+  private notify = inject(MessageService);
   folders: TreeNode[] = [];
+  selectedFolder: TreeNode | undefined; 
   originalFolders: TreeNode[] = [];
   sbItems: MenuItem[] = [];
   cmItems: MenuItem[] = [];
   filterValue: any;
+  addFolderDialogVisible: boolean = false;
+  isAddRootFolder: boolean = false;
+  DialogTitle: string = '';
+  DialogDescription: string = '';
 
   ngOnInit(): void {
     this.setupSplitButton();
@@ -58,7 +66,14 @@ export class FoldersComponent implements OnInit {
     });
   }
 
-  applyFilter() {
+  public nodeSelect() {
+    if(!this.selectedFolder) return;
+    const cickedFolder: TreeNode = this.selectedFolder;
+    this.folderService.selectedFolder = cickedFolder;
+    console.log('clicked Folder: ',cickedFolder);
+  }
+
+  public applyFilter() {
     if(!this.filterValue) {
       this.folders = this.originalFolders;
       return;
@@ -98,17 +113,23 @@ export class FoldersComponent implements OnInit {
       },
       {
         label: "Sort Ascending",
-        icon: "pi pi-fw pi-sort-alpha-down"
+        icon: "pi pi-fw pi-sort-alpha-down",
+        command: () => this.folderService.sortFoldersASC(true)
       },
       {
         label: "Sort Descending",
-        icon: "pi pi-fw pi-sort-alpha-up-alt"
+        icon: "pi pi-fw pi-sort-alpha-up-alt",
+        command: () => this.folderService.sortFoldersDESC(false)
       }
     ]
   }
 
   private setupContextMenu() {
     this.cmItems = [
+      {
+        label: "New Folder",
+        icon: "pi pi-folder-plus"
+      },
       {
         label: "Move Folder",
         icon: "pi pi-arrows-alt"
@@ -124,10 +145,34 @@ export class FoldersComponent implements OnInit {
       {
         label: "Delete",
         icon: "pi pi-fw pi-trash"
+      },
+      {
+        label: "Sort Ascending",
+        icon: "pi pi-fw pi-sort-alpha-down",
+        command: () => this.folderService.sortFoldersASC(true)
+      },
+      {
+        label: "Sort Descending",
+        icon: "pi pi-fw pi-sort-alpha-up-alt",
+        command: () => this.folderService.sortFoldersDESC(false)
       }
     ]
   }
-  addFolder() {
+  public addFolder() {
+    this.showAddFolderDialog();
+  }
+
+  private showAddFolderDialog() {
+   
+  }
+  public onSaveAddFolder() {
     
+  }
+
+  public onCancleAddFolder() {
+    this.DialogDescription = '';
+    this.DialogTitle = '';
+    this.isAddRootFolder = false;
+    this.addFolderDialogVisible = false;
   }
 }
