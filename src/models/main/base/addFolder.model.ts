@@ -1,3 +1,4 @@
+import { Language } from './language.model';
 /**
  * @interface AddFolder
  * 
@@ -7,5 +8,8 @@
 
 export interface AddFolder {
     Name: string;
-    ParentId: number | null
+    ParentId: number | null;
+    LanguageId: number;
+    LanguageKey: string;
+    LanguageName: string;
 }

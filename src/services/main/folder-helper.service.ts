@@ -60,7 +60,7 @@ export class FolderHelperService {
 
     try{
       const rawFolders = await this.dbHelper.executeQuery<RawFolder>(
-        "SELECT FID, FNAME, FPARENT_ID, FCREATED_AT, FMODIFIED_AT, FGUID FROM FOLDERS"
+        "SELECT FID, FNAME, FPARENT_ID, LKEY, LNAME, FLID, FGUID, FCREATED_AT, FMODIFIED_AT FROM FOLDERS, LANGUAGES WHERE FLID = LID ORDER BY FNAME ASC"
       );
       console.log("loaded folders: ",rawFolders);
 
@@ -70,7 +70,10 @@ export class FolderHelperService {
         ParentId: f.FPARENT_ID,
         Guid: f.FGUID,
         CreatedAt: f.FCREATED_AT,
-        UpdatedAt: f.FMODIFIED_AT
+        UpdatedAt: f.FMODIFIED_AT,
+        DefaultLanguageKey: f.LKEY,
+        DefaultLanguageName: f.LNAME,
+        LanguageId: f.FLID
       } satisfies Folder));
 
       const folderTree = this.buildFolderTree(folders);
@@ -96,11 +99,11 @@ export class FolderHelperService {
       const guid = uuid();
       const timestamp: Date = new Date();
       const sql = 
-        `INSERT INTO FOLDERS (FNAME, FPARENT_ID, FGUID, FCREATED_AT, FMODIFIED_AT) 
-        VALUES (?, ?, ?, ?, ?)
+        `INSERT INTO FOLDERS (FNAME, FPARENT_ID, FGUID, FLID, FCREATED_AT, FMODIFIED_AT) 
+        VALUES (?, ?, ?, ?, ?, ?)
       `;
       this.dbHelper.db
-        .execute(sql, [newFolder.Name, newFolder.ParentId, guid, timestamp, timestamp])
+        .execute(sql, [newFolder.Name, newFolder.ParentId, guid, newFolder.LanguageId, timestamp, timestamp])
         .then((result: any) => {
           const newNode: TreeNode = {
             label: newFolder.Name,
@@ -109,6 +112,9 @@ export class FolderHelperService {
               Name: newFolder.Name,
               ParentId: newFolder.ParentId,
               Guid: guid,
+              DefaultLanguageKey: newFolder.LanguageKey,
+              DefaultLanguageName: newFolder.LanguageName,
+              LanguageId: newFolder.LanguageId,
               CreatedAt: timestamp,
               UpdatedAt: timestamp
             },
@@ -162,17 +168,36 @@ export class FolderHelperService {
 
   /**
    * 
-   * @param folderId 
-   * @param newName 
+   * @param folderId
    * @returns 
    * 
-   * Renames a folder
+   * Updates a folder
    */
-  public async renameFolder(folderId: number, newName: string): Promise<void> {
+  public async renameFolder(folderId: number, newName?: string, languageId?: number): Promise<void> {
     return new Promise((resolve, reject) => {
-      const sql = `UPDATE FOLDERS SET FNAME = ? WHERE FID = ?`;
+      if (!newName && languageId === undefined) {
+        resolve(); 
+        return;
+      }
+  
+      const fieldsToUpdate: string[] = [];
+      const values: any[] = [];
+  
+      if (newName !== undefined) {
+        fieldsToUpdate.push("FNAME = ?");
+        values.push(newName);
+      }
+  
+      if (languageId !== undefined) {
+        fieldsToUpdate.push("FLID = ?");
+        values.push(languageId);
+      }
+  
+      const sql = `UPDATE FOLDERS SET ${fieldsToUpdate.join(", ")} WHERE FID = ?`;
+      values.push(folderId);
+  
       this.dbHelper.db
-        .execute(sql, [newName, folderId])
+        .execute(sql, values)
         .then(() => {
           const updatedFolders = this.updateNodeInTree(
             this._folders.getValue(),
@@ -180,7 +205,7 @@ export class FolderHelperService {
             newName
           );
           this._folders.next(updatedFolders);
-
+  
           this.isFoldersSortedAscending
             ? this.sortFoldersASC(this.isFoldersSortedAscending)
             : this.sortFoldersDESC(this.isFoldersSortedAscending);
@@ -191,6 +216,7 @@ export class FolderHelperService {
         });
     });
   }
+  
 
   /**
    * 

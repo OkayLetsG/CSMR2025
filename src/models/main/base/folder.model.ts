@@ -9,6 +9,9 @@ export interface Folder {
   Name: string;
   ParentId: number;
   Guid: string;
+  DefaultLanguageKey: string;
+  DefaultLanguageName: string;
+  LanguageId : number;
   CreatedAt: Date;
   UpdatedAt: Date;
 }

@@ -9,6 +9,9 @@ export interface RawFolder {
     FID: number;
     FNAME: string;
     FPARENT_ID: number;
+    LKEY: string;
+    LNAME: string;
+    FLID: number;
     FGUID: string;
     FCREATED_AT: Date;
     FMODIFIED_AT: Date;

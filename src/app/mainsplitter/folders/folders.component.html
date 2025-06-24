@@ -34,6 +34,7 @@
   selectionMode="single"
   [(selection)]="selectedFolder"
   (onNodeSelect)="nodeSelect()"
+  (onNodeUnselect)="nodeUnselect()"
   [style]="{
     height: '85vh',
     width: '100%',
@@ -52,7 +53,7 @@
   [(visible)]="addFolderDialogVisible"
   [modal]="true"
   [draggable]="false"
-  [style]="{ width: '50rem', height: '25rem', overflow: 'auto' }"
+  [style]="{ width: '50rem', height: '26rem', overflow: 'auto' }"
   [contentStyle]="{ padding: '1.5rem' }"
   [dismissableMask]="false"
   [closable]="false"
@@ -71,7 +72,9 @@
         type="text"
         pInputText
         [(ngModel)]="userAddFolderNameValue"
-        style="width: 100%;" />
+        style="width: 100%;" 
+        [class.ng-invalid]="userAddFolderNameValue === '' || userAddFolderNameValue === undefined"
+        [class.ng-dirty]="userAddFolderNameValue === '' || userAddFolderNameValue === undefined"/>
       <label>Folder Name</label>
     </p-floatLabel>
     <div style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;">
@@ -87,12 +90,59 @@
 
   <p-divider></p-divider>
 
+  <p-floatLabel>
+    <p-treeSelect
+      [placeholder]="'Select parent folder'"
+      [(ngModel)]="selectedNodeFolder"
+      [options]="folders"
+      [containerStyle]="{ width: '100%' }"
+      [class.ng-invalid]="selectedNodeFolder === null && !isAddRootFolder || selectedNodeFolder === undefined && !isAddRootFolder"
+      [class.ng-dirty]="selectedNodeFolder === null && !isAddRootFolder || selectedNodeFolder === undefined && !isAddRootFolder"
+      [virtualScroll]="true" 
+      [virtualScrollItemSize]="25" 
+      [virtualScrollOptions]="{scrollHeight: '250px'}"
+      [filter]="true" 
+      [filterInputAutoFocus]="true"
+      variant="outlined"
+      appendTo="body"
+      [disabled]="isAddRootFolder"
+      >
+    </p-treeSelect>
+    <label>
+      Parent Folder
+  </label>
+</p-floatLabel>
+
+<p-divider></p-divider>
+
+<p-floatLabel>
+  <p-treeSelect
+    [placeholder]="'Select language'"
+    [(ngModel)]="selectedNodeLanguage"
+    [options]="languagesAsTreeNodes"
+    [containerStyle]="{ width: '100%' }"
+    [class.ng-invalid]="selectedNodeLanguage === null || selectedNodeLanguage === undefined"
+    [class.ng-dirty]="selectedNodeLanguage === null || selectedNodeLanguage === undefined"
+    [virtualScroll]="true" 
+    [virtualScrollItemSize]="35" 
+    [virtualScrollOptions]="{scrollHeight: '250px'}"
+    [filter]="true" 
+    [filterInputAutoFocus]="true"
+    variant="outlined"
+    appendTo="body"
+  >
+  </p-treeSelect>
+  <label>
+    Select default language
+  </label>
+</p-floatLabel>
+
   <p-footer>
     <p-button
       label="Cancel"
       icon="pi pi-times"
       class="p-button-text"
-      (click)="onCancleAddFolder()"
+      (click)="onCancleAddFolder(true)"
     ></p-button>
     <p-button
       label="Save"
@@ -103,4 +153,4 @@
   </p-footer>
 </p-dialog>
 
-<p-toast></p-toast>
+<p-toast position="bottom-right" key="br"></p-toast>

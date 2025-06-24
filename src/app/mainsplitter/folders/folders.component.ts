@@ -1,3 +1,4 @@
+import { languages } from './../../../../dist/csmr2025/browser/assets/monaco/esm/metadata.d';
 import { Component, OnInit, inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { SplitButtonModule } from "primeng/splitbutton";
@@ -16,6 +17,9 @@ import { ContextMenuModule } from "primeng/contextmenu";
 import { CheckboxModule } from 'primeng/checkbox';
 import { TreeNode, MessageService, MenuItem } from "primeng/api";
 import { FolderHelperService } from "../../../services/main/folder-helper.service";
+import { LanguageService } from "../../../services/main/language.service";
+import { type Language } from "../../../models/main/base/language.model";
+import { AddFolder } from '../../../models/main/base/addFolder.model';
 
 @Component({
   selector: "app-folders",
@@ -43,9 +47,12 @@ import { FolderHelperService } from "../../../services/main/folder-helper.servic
 })
 export class FoldersComponent implements OnInit {
   private folderService = inject(FolderHelperService);
-   notify = inject(MessageService);
+  private languageService = inject(LanguageService);
+  private notify = inject(MessageService);
   folders: TreeNode[] = [];
   selectedFolder: TreeNode | undefined; 
+  selectedNodeFolder: any;
+  selectedNodeLanguage: any;
   originalFolders: TreeNode[] = [];
   sbItems: MenuItem[] = [];
   cmItems: MenuItem[] = [];
@@ -55,23 +62,41 @@ export class FoldersComponent implements OnInit {
   userAddFolderNameValue: string = '';
   DialogTitle: string = '';
   DialogDescription: string = '';
+  languages: Language[] = [];
+  languagesAsTreeNodes: TreeNode[] = [];
 
   ngOnInit(): void {
     this.setupSplitButton();
     this.setupContextMenu();
     this.folderService.getFolders();
+    this.languageService.loadLanguages();
 
     this.folderService.folders$.subscribe((nodes) => {
       this.folders = nodes;
       this.originalFolders = nodes;
     });
+
+    this.languageService.languages$.subscribe((l) => {
+      this.languages = l;
+    });
+
+    this.languageService.availableLanguagesAsTreeNodes$.subscribe((l) => {
+      this.languagesAsTreeNodes = l;
+      console.log('languagesAsTreeNodes',this.languagesAsTreeNodes);
+    });
   }
 
   public nodeSelect() {
-    if(!this.selectedFolder) return;
-    const cickedFolder: TreeNode = this.selectedFolder;
+    const cickedFolder: TreeNode | undefined = this.selectedFolder;
     this.folderService.selectedFolder = cickedFolder;
+    const selectedFolder: TreeNode | undefined = this.folderService.selectedFolder;
     console.log('clicked Folder: ',cickedFolder);
+  }
+  
+  public nodeUnselect() {
+    this.folderService.selectedFolder = undefined;
+    const unclickedFolder: TreeNode | undefined = this.folderService.selectedFolder;
+    console.log('unclicked Folder: ',unclickedFolder);
   }
 
   public applyFilter() {
@@ -169,16 +194,50 @@ export class FoldersComponent implements OnInit {
     this.addFolderDialogVisible = true;
   }
   public onSaveGlobalAddFolder() {
-    
+    const errorMessages: string[] = [];
+    if (!this.userAddFolderNameValue || this.userAddFolderNameValue === '') {
+      errorMessages.push('Please enter a folder name');
+    }
+
+    if ((!this.selectedNodeFolder || this.selectedNodeFolder === undefined) && !this.isAddRootFolder) {
+      errorMessages.push('Please select a parent folder or check the root folder checkbox');
+    }
+    if (!this.selectedNodeLanguage || this.selectedNodeLanguage === undefined) {
+      errorMessages.push('Please select a default language');
+    }
+
+    if (errorMessages.length > 0) {
+      errorMessages.forEach(err =>
+        this.notify.add({ severity: "error", summary: "Error",  detail: err, key: 'br', sticky: true })
+      );
+      return;
+    }
+    else {
+
+      this.folderService.addFolder({
+        Name: this.userAddFolderNameValue,
+        ParentId: this.selectedNodeFolder ? this.selectedNodeFolder.data.Id : null,
+        LanguageId: this.selectedNodeLanguage.data.Id,
+        LanguageKey: this.selectedNodeLanguage.data.Key,
+        LanguageName: this.selectedNodeLanguage.data.Name
+      } satisfies AddFolder).then(() => {
+        this.onCancleAddFolder(false);
+      });
+    }
   }
 
-  public onCancleAddFolder() {
+  public onCancleAddFolder(showError: boolean) {
     this.DialogDescription = '';
     this.DialogTitle = '';
     this.isAddRootFolder = false;
     this.addFolderDialogVisible = false; 
     this.userAddFolderNameValue = '';
-    this.notify.add({ severity: "info", summary: "Information", detail: "Folder creation canceled"});
+    this.selectedNodeFolder = undefined;
+    this.selectedNodeLanguage = undefined;
+    if(showError)
+      this.notify.add({ severity: "info", summary: "Information", detail: "Folder creation canceled", key: 'br', life: 3000 });
+    else
+      this.notify.add({ severity: "success", summary: "Success", detail: "Folder created", key: 'br', life: 3000 });
     
   }
   public onChangeCheckboxRootFolder() {

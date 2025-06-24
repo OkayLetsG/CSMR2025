@@ -19,10 +19,11 @@ pub fn run() {
 									FPARENT_ID INTEGER,
 									FCREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 									FMODIFIED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                    FDEFAULT_LANGUAGE TEXT NOT NULL,
+                                    FLID INTEGER,
                                     FGUID TEXT NOT NULL,
 									FOREIGN KEY (FPARENT_ID) REFERENCES FOLDERS(FID) ON DELETE CASCADE,
                                     FOREIGN KEY (FPARENT_ID) REFERENCES FOLDERS(FID) ON UPDATE CASCADE
+                                    FOREIGN KEY (FLID) REFERENCES LANGUAGES(LID) ON DELETE CASCADE
                 )",
             kind: MigrationKind::Up,
         },
@@ -35,9 +36,11 @@ pub fn run() {
 									SCREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 									SMODIFIED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 									SFID INTEGER,
-                                    SLNAME TEXT,
+                                    SLNAME TEXT NOT NULL,
+                                    SLID INTEGER,
                                     SGUID TEXT NOT NULL,
 									FOREIGN KEY (SFID) REFERENCES FOLDERS(FID) ON DELETE CASCADE
+                                    FOREIGN KEY (SLID) REFERENCES LANGUAGES(LID) ON DELETE CASCADE
 				)",
             kind: MigrationKind::Up,
         },
@@ -63,6 +66,10 @@ pub fn run() {
 									LID INTEGER PRIMARY KEY AUTOINCREMENT,
 									LKEY TEXT NOT NULL,
                                     LNAME TEXT NOT NULL,
+                                    LSHOW INTEGER NOT NULL DEFAULT -1,
+                                    LALLOW_DELETE INTEGER NOT NULL DEFAULT 0,
+                                    LCREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+									LMODIFIED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                     UNIQUE (LKEY, LNAME)
                 )",
             kind: MigrationKind::Up,
