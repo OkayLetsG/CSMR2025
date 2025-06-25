@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from "@angular/core";
+import { Component, OnInit, ViewChild, inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { SplitButtonModule } from "primeng/splitbutton";
 import { ButtonModule } from "primeng/button";
@@ -53,6 +53,7 @@ export class FoldersComponent implements OnInit {
   selectedNodeFolder: any;
   selectedNodeLanguage: any;
   originalFolders: TreeNode[] = [];
+  treeSelect: TreeNode[] = [];
   sbItems: MenuItem[] = [];
   cmItems: MenuItem[] = [];
   filterValue: any;
@@ -73,6 +74,7 @@ export class FoldersComponent implements OnInit {
     this.folderService.folders$.subscribe((nodes) => {
       this.folders = nodes;
       this.originalFolders = nodes;
+      this.treeSelect = JSON.parse(JSON.stringify(this.folders));
     });
 
     this.languageService.languages$.subscribe((l) => {

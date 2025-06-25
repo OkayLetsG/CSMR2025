@@ -77,6 +77,8 @@ export class FolderHelperService {
       } satisfies Folder));
 
       const folderTree = this.buildFolderTree(folders);
+      console.log("folderTree: ", folderTree);
+      console.log("mapped folders to Folder[]: ", folders);
       this.applyIcons(folderTree);
       this._folders.next(folderTree);
       this.sortFoldersASC(this.isFoldersSortedAscending);
@@ -86,7 +88,7 @@ export class FolderHelperService {
       this._folders.next([]);
     }
   }
-
+   
   /**
    * 
    * @param newFolder 
@@ -225,7 +227,38 @@ export class FolderHelperService {
    * 
    * Builds the folder tree
    */
-  private buildFolderTree(folders: Folder[]) : TreeNode[] {
+
+  private buildFolderTree(folders: Folder[]): TreeNode[] {
+  const map = new Map<number, TreeNode>();
+  const rootNodes: TreeNode[] = [];
+
+  // 1. Alle Nodes erzeugen und in Map eintragen
+  folders.forEach(f => {
+    map.set(f.Id, {
+      label: f.Name,
+      data: f,
+      children: []
+    });
+  });
+
+  // 2. Beziehungen aufbauen
+  folders.forEach(f => {
+    const node = map.get(f.Id)!;
+    if (f.ParentId !== null) {
+      const parentNode = map.get(f.ParentId);
+      if (parentNode) {
+        parentNode.children!.push(node);
+      }
+    } else {
+      rootNodes.push(node);
+    }
+  });
+
+  return rootNodes;
+}
+
+
+/*  private buildFolderTree(folders: Folder[]) : TreeNode[] {
     const map = new Map<number, TreeNode>();
     const rootNodes: TreeNode[] = [];
 
@@ -249,7 +282,7 @@ export class FolderHelperService {
       }
     });
     return rootNodes;
-  }
+  }*/
 
   /**
    * 
