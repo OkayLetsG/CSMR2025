@@ -10,11 +10,12 @@ import { TreeSelectModule } from "primeng/treeselect";
 import { DialogModule } from "primeng/dialog";
 import { DividerModule } from "primeng/divider";
 import { ToastModule } from "primeng/toast";
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FloatLabelModule } from "primeng/floatlabel";
 import { DropdownModule } from "primeng/dropdown";
 import { ContextMenuModule } from "primeng/contextmenu";
 import { CheckboxModule } from 'primeng/checkbox';
-import { TreeNode, MessageService, MenuItem } from "primeng/api";
+import { TreeNode, MessageService, MenuItem, ConfirmationService } from "primeng/api";
 import { FolderHelperService } from "../../../services/main/folder-helper.service";
 import { LanguageService } from "../../../services/main/language.service";
 import { type Language } from "../../../models/main/base/language.model";
@@ -35,6 +36,7 @@ import { type ResponsiveModel } from "../../../models/theme/responsive.model";
     DialogModule,
     DividerModule,
     ToastModule,
+    ConfirmDialogModule,
     ButtonModule,
     FloatLabelModule,
     FormsModule,
@@ -44,13 +46,17 @@ import { type ResponsiveModel } from "../../../models/theme/responsive.model";
   ],
   templateUrl: "./folders.component.html",
   styleUrl: "./folders.component.css",
-  providers: [MessageService]
+  providers: [
+    MessageService,
+    ConfirmationService
+  ]
 })
 export class FoldersComponent implements OnInit {
   private folderService = inject(FolderHelperService);
   private languageService = inject(LanguageService);
   private responsiveService = inject(ResponsiveService);
   private notify = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
   folders: TreeNode[] = [];
   selectedFolder: TreeNode | undefined; 
   selectedNodeFolder: any;
@@ -138,18 +144,6 @@ export class FoldersComponent implements OnInit {
   private setupSplitButton() {
     this.sbItems = [
       {
-        label: "Move Folders",
-        icon: "pi pi-arrows-alt"
-      },
-      {
-        label: "Add Snippet",
-        icon: "pi pi-file-plus"
-      },
-      {
-        label: "Delete",
-        icon: "pi pi-fw pi-trash"
-      },
-      {
         label: "Sort Ascending",
         icon: "pi pi-fw pi-sort-alpha-down",
         command: () => this.folderService.sortFoldersASC(true)
@@ -170,20 +164,17 @@ export class FoldersComponent implements OnInit {
         command:() => this.addFolder(this.selectedFolder as TreeNode)
       },
       {
-        label: "Move Folder",
-        icon: "pi pi-arrows-alt"
-      },
-      {
         label: "Add Snippet",
         icon: "pi pi-file-plus"
       },
       {
-        label: "Change Properties",
+        label: "Properties",
         icon: "pi pi-fw pi-pencil"
       },
       {
         label: "Delete",
-        icon: "pi pi-fw pi-trash"
+        icon: "pi pi-fw pi-trash",
+        command: () => this.confirmDelete()
       },
       {
         label: "Sort Ascending",
@@ -207,7 +198,7 @@ export class FoldersComponent implements OnInit {
   }
 
   private showGlobalAddFolderDialog() {
-    this.DialogTitle = 'Create a new Folder';
+    this.DialogTitle = 'New Folder';
     this.DialogDescription = '';
     this.addFolderDialogVisible = true;
     if(this.selectedFolder) {
@@ -263,27 +254,56 @@ export class FoldersComponent implements OnInit {
       this.notify.add({ severity: "success", summary: "Success", detail: "Folder created", key: 'br', life: 3000 });
     
   }
-  public onChangeCheckboxRootFolder() {
+  public onChangeCheckboxRootFolder() {                                                                                                                               
     console.log('Checkbox isAddRootFolder',this.isAddRootFolder);
+    if(this.isAddRootFolder) {
+      this.selectedNodeFolder = undefined;
+    }
   }
 
   public cloneTreeNodes(nodes: TreeNode[]): TreeNode[] {
-  return nodes.map(node => {
-    const clonedNode: TreeNode = {
-      label: node.label,
-      data: node.data,
-      children: node.children ? this.cloneTreeNodes(node.children) : [],
-      expandedIcon: node.expandedIcon,
-      collapsedIcon: node.collapsedIcon,
-      selectable: node.selectable,
-      icon: node.icon,
-      key: node.key,
-      styleClass: node.styleClass,
-      type: node.type,
-    };
+    return nodes.map(node => {
+      const clonedNode: TreeNode = {
+        label: node.label,
+        data: node.data,
+        children: node.children ? this.cloneTreeNodes(node.children) : [],
+        expandedIcon: node.expandedIcon,
+        collapsedIcon: node.collapsedIcon,
+        selectable: node.selectable,
+        icon: node.icon,
+        key: node.key,
+        styleClass: node.styleClass,
+        type: node.type,
+      };
 
-    return clonedNode;
-  });
-}
+      return clonedNode;
+    });
+  }
 
+  public confirmDelete() {
+   
+
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this folder?',
+      header: 'Delete Folder',
+      icon: 'pi pi-exclamation-triangle',
+      acceptIcon: 'none',
+      rejectIcon: 'none',
+      acceptLabel: 'Yes',
+      rejectLabel: 'No',
+      rejectButtonStyleClass: 'p-button-outlined',
+      accept: () => {
+        if(!this.selectedFolder) {
+          this.notify.add({ severity: "error", summary: "Error", detail: "Please select a folder to delete", key: 'br', sticky: true });
+          return;
+        }
+        this.folderService.deleteFolder(this.selectedFolder.data.Id).then(() => {
+          this.notify.add({ severity: "success", summary: "Success", detail: "Folder deleted", key: 'br', life: 3000 });
+        });
+      },
+      reject: () => {
+        this.notify.add({ severity: "info", summary: "Information", detail: "Folder deletion canceled", key: 'br', life: 3000 });
+      }
+    });
+  }
 }

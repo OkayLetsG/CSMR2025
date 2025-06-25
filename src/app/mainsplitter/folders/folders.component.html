@@ -16,7 +16,7 @@
   />
 </p-iconField>
 <p-splitButton
-  label="Add Folder"
+  label="New Folder"
   (onClick)="globalAddFolder()"
   [model]="sbItems"
   text
@@ -36,8 +36,8 @@
   (onNodeSelect)="nodeSelect()"
   (onNodeUnselect)="nodeUnselect()"
   [virtualScroll]="true"
-  [virtualScrollItemSize]="35"
-  [scrollHeight]="(windowValues.height - 140) + 'px'"
+  [virtualScrollItemSize]="48"
+  [scrollHeight]="(windowValues.height - 105) + 'px'"
   [style]="{
     height: '{{this.windowValues.height}}px',
     overflowY: 'auto',
@@ -52,7 +52,9 @@
   }"
 >
 </p-tree>
-<p-contextMenu #cm [model]="cmItems"></p-contextMenu>
+
+<p-contextMenu #cm [model]="cmItems">
+</p-contextMenu>
 
 <p-dialog
   [header]="DialogTitle"
@@ -105,7 +107,7 @@
       [class.ng-invalid]="selectedNodeFolder === null && !isAddRootFolder || selectedNodeFolder === undefined && !isAddRootFolder"
       [class.ng-dirty]="selectedNodeFolder === null && !isAddRootFolder || selectedNodeFolder === undefined && !isAddRootFolder"
       [virtualScroll]="true" 
-      [virtualScrollItemSize]="35" 
+      [virtualScrollItemSize]="48" 
       [virtualScrollOptions]="{scrollHeight: '250px'}"
       [filter]="true" 
       [filterInputAutoFocus]="true"
@@ -130,7 +132,7 @@
     [class.ng-invalid]="selectedNodeLanguage === null || selectedNodeLanguage === undefined"
     [class.ng-dirty]="selectedNodeLanguage === null || selectedNodeLanguage === undefined"
     [virtualScroll]="true" 
-    [virtualScrollItemSize]="35" 
+    [virtualScrollItemSize]="48" 
     [virtualScrollOptions]="{scrollHeight: '250px'}"
     [filter]="true" 
     [filterInputAutoFocus]="true"
@@ -148,6 +150,7 @@
       label="Cancel"
       icon="pi pi-times"
       class="p-button-text"
+      [outlined]="true"
       (click)="onCancleAddFolder(true)"
     ></p-button>
     <p-button
@@ -160,3 +163,8 @@
 </p-dialog>
 
 <p-toast position="bottom-right" key="br"></p-toast>
+
+<p-confirmDialog />
+
+
+
