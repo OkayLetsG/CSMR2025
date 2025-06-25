@@ -1,4 +1,3 @@
-import { languages } from './../../../../dist/csmr2025/browser/assets/monaco/esm/metadata.d';
 import { Component, OnInit, inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { SplitButtonModule } from "primeng/splitbutton";
