@@ -257,33 +257,6 @@ export class FolderHelperService {
   return rootNodes;
 }
 
-
-/*  private buildFolderTree(folders: Folder[]) : TreeNode[] {
-    const map = new Map<number, TreeNode>();
-    const rootNodes: TreeNode[] = [];
-
-    folders.forEach((f) => {
-      const node: TreeNode = {
-        label: f.Name,
-        data: f,
-        children: [],
-      };
-      map.set(f.Id, node);
-
-      if (f.ParentId !== null) {
-        const parentNode = map.get(f.ParentId);
-        if (parentNode) {
-          parentNode.children = parentNode.children || [];
-          parentNode.children.push(node);
-        }
-      }
-      else {
-        rootNodes.push(node);
-      }
-    });
-    return rootNodes;
-  }*/
-
   /**
    * 
    * @param nodes 

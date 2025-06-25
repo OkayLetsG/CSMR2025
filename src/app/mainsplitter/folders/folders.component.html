@@ -35,13 +35,19 @@
   [(selection)]="selectedFolder"
   (onNodeSelect)="nodeSelect()"
   (onNodeUnselect)="nodeUnselect()"
+  [virtualScroll]="true"
+  [virtualScrollItemSize]="35"
+  [scrollHeight]="(windowValues.height - 140) + 'px'"
   [style]="{
-    height: '85vh',
+    height: '{{this.windowValues.height}}px',
+    overflowY: 'auto',
+    overflowX: 'auto',
+    flex: '1 1 auto',
     width: '100%',
     border: '0px',
     borderRadius: '0px',
     overflow: 'auto',
-    fontSize: '16px',
+    fontSize: '14px',
     fontWeight: 'bold'
   }"
 >

@@ -18,7 +18,9 @@ import { TreeNode, MessageService, MenuItem } from "primeng/api";
 import { FolderHelperService } from "../../../services/main/folder-helper.service";
 import { LanguageService } from "../../../services/main/language.service";
 import { type Language } from "../../../models/main/base/language.model";
-import { AddFolder } from '../../../models/main/base/addFolder.model';
+import { type AddFolder } from '../../../models/main/base/addFolder.model';
+import { ResponsiveService } from "../../../services/theme/responsive.service";
+import { type ResponsiveModel } from "../../../models/theme/responsive.model";
 
 @Component({
   selector: "app-folders",
@@ -47,6 +49,7 @@ import { AddFolder } from '../../../models/main/base/addFolder.model';
 export class FoldersComponent implements OnInit {
   private folderService = inject(FolderHelperService);
   private languageService = inject(LanguageService);
+  private responsiveService = inject(ResponsiveService);
   private notify = inject(MessageService);
   folders: TreeNode[] = [];
   selectedFolder: TreeNode | undefined; 
@@ -64,6 +67,10 @@ export class FoldersComponent implements OnInit {
   DialogDescription: string = '';
   languages: Language[] = [];
   languagesAsTreeNodes: TreeNode[] = [];
+  windowValues: ResponsiveModel = {
+    width: window.innerWidth,
+    height: window.innerHeight,
+  }
 
   ngOnInit(): void {
     this.setupSplitButton();
@@ -74,7 +81,7 @@ export class FoldersComponent implements OnInit {
     this.folderService.folders$.subscribe((nodes) => {
       this.folders = nodes;
       this.originalFolders = nodes;
-      this.treeSelect = JSON.parse(JSON.stringify(this.folders));
+      this.treeSelect = this.cloneTreeNodes(nodes);
     });
 
     this.languageService.languages$.subscribe((l) => {
@@ -85,6 +92,10 @@ export class FoldersComponent implements OnInit {
       this.languagesAsTreeNodes = l;
       console.log('languagesAsTreeNodes',this.languagesAsTreeNodes);
     });
+
+    this.responsiveService.size$.subscribe((size) => {
+      this.windowValues = size;
+    })
   }
 
   public nodeSelect() {
@@ -244,4 +255,24 @@ export class FoldersComponent implements OnInit {
   public onChangeCheckboxRootFolder() {
     console.log('Checkbox isAddRootFolder',this.isAddRootFolder);
   }
+
+  public cloneTreeNodes(nodes: TreeNode[]): TreeNode[] {
+  return nodes.map(node => {
+    const clonedNode: TreeNode = {
+      label: node.label,
+      data: node.data,
+      children: node.children ? this.cloneTreeNodes(node.children) : [],
+      expandedIcon: node.expandedIcon,
+      collapsedIcon: node.collapsedIcon,
+      selectable: node.selectable,
+      icon: node.icon,
+      key: node.key,
+      styleClass: node.styleClass,
+      type: node.type,
+    };
+
+    return clonedNode;
+  });
+}
+
 }
