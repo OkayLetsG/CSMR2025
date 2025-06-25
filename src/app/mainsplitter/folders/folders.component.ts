@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, inject } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { SplitButtonModule } from "primeng/splitbutton";
 import { ButtonModule } from "primeng/button";
@@ -92,7 +92,7 @@ export class FoldersComponent implements OnInit {
       this.languagesAsTreeNodes = l;
       console.log('languagesAsTreeNodes',this.languagesAsTreeNodes);
     });
-
+ 
     this.responsiveService.size$.subscribe((size) => {
       this.windowValues = size;
     })
@@ -166,7 +166,8 @@ export class FoldersComponent implements OnInit {
     this.cmItems = [
       {
         label: "New Folder",
-        icon: "pi pi-folder-plus"
+        icon: "pi pi-folder-plus",
+        command:() => this.addFolder(this.selectedFolder as TreeNode)
       },
       {
         label: "Move Folder",
@@ -200,10 +201,20 @@ export class FoldersComponent implements OnInit {
     this.showGlobalAddFolderDialog();
   }
 
+  private addFolder(newNode: TreeNode) {
+    console.log('addFolder',newNode);
+    this.showGlobalAddFolderDialog();
+  }
+
   private showGlobalAddFolderDialog() {
     this.DialogTitle = 'Create a new Folder';
     this.DialogDescription = '';
     this.addFolderDialogVisible = true;
+    if(this.selectedFolder) {
+      this.selectedNodeFolder = this.selectedFolder;
+      this.isAddRootFolder = false;
+    }
+    console.log('selectedNodeFolder',this.selectedNodeFolder);
   }
   public onSaveGlobalAddFolder() {
     const errorMessages: string[] = [];
