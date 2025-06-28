@@ -175,7 +175,7 @@ export class FolderHelperService {
    * 
    * Updates a folder
    */
-  public async renameFolder(folderId: number, newName?: string, languageId?: number): Promise<void> {
+  public async changePropertiesFolder(folderId: number, newName?: string, languageId?: number): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!newName && languageId === undefined) {
         resolve(); 
@@ -219,7 +219,30 @@ export class FolderHelperService {
     });
   }
   
-
+  public async updateFolderParent(folderId: number, parentId: number|undefined): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const parentIdToUpdate = parentId === undefined ? null : parentId;
+      const sql = `UPDATE FOLDERS SET FPARENT_ID = ? WHERE FID = ?`;
+      this.dbHelper.db
+        .execute(sql, [parentIdToUpdate, folderId])
+        .then(() => {
+          const updatedFolders = this.updateNodeParentInTree(
+            this._folders.getValue(),
+            folderId,
+            parentId
+          );
+          this._folders.next(updatedFolders);
+  
+          this.isFoldersSortedAscending
+            ? this.sortFoldersASC(this.isFoldersSortedAscending)
+            : this.sortFoldersDESC(this.isFoldersSortedAscending);
+          resolve();
+        })
+        .catch((error: any) => {
+          reject(error);
+        })
+    })
+  }
   /**
    * 
    * @param folders 
@@ -232,7 +255,6 @@ export class FolderHelperService {
   const map = new Map<number, TreeNode>();
   const rootNodes: TreeNode[] = [];
 
-  // 1. Alle Nodes erzeugen und in Map eintragen
   folders.forEach(f => {
     map.set(f.Id, {
       label: f.Name,
@@ -241,7 +263,6 @@ export class FolderHelperService {
     });
   });
 
-  // 2. Beziehungen aufbauen
   folders.forEach(f => {
     const node = map.get(f.Id)!;
     if (f.ParentId !== null) {
@@ -420,4 +441,24 @@ export class FolderHelperService {
       };
     });
   }
+
+  private updateNodeParentInTree(nodes: TreeNode[], folderId: number, parentId: number | undefined): TreeNode[] {
+    return nodes.map((node) => {
+      if (node.data.Id === folderId) {
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            ParentId: parentId,
+          },
+        };
+      }
+      return {
+        ...node,
+        children: node.children
+          ? this.updateNodeParentInTree(node.children, folderId, parentId)
+          : [],
+      };
+    });
+  } 
 }

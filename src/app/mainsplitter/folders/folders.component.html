@@ -33,6 +33,10 @@
   filterMode="lenient"
   selectionMode="single"
   [(selection)]="selectedFolder"
+  [draggableNodes]="true"
+  [droppableNodes]="true"
+  draggableScope="self" 
+  droppableScope="self"
   (onNodeSelect)="nodeSelect()"
   (onNodeUnselect)="nodeUnselect()"
   [virtualScroll]="true"
@@ -79,10 +83,10 @@
       <input
         type="text"
         pInputText
-        [(ngModel)]="userAddFolderNameValue"
+        [(ngModel)]="userFolderNameValue"
         style="width: 100%;" 
-        [class.ng-invalid]="userAddFolderNameValue === '' || userAddFolderNameValue === undefined"
-        [class.ng-dirty]="userAddFolderNameValue === '' || userAddFolderNameValue === undefined"/>
+        [class.ng-invalid]="userFolderNameValue === '' || userFolderNameValue === undefined"
+        [class.ng-dirty]="userFolderNameValue === '' || userFolderNameValue === undefined"/>
       <label>Folder Name</label>
     </p-floatLabel>
     <div style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;">
@@ -148,16 +152,82 @@
   <p-footer>
     <p-button
       label="Cancel"
-      icon="pi pi-times"
       class="p-button-text"
       [outlined]="true"
       (click)="onCancleAddFolder(true)"
     ></p-button>
     <p-button
       label="Save"
-      icon="pi pi-check"
       class="p-button-text"
       (click)="onSaveGlobalAddFolder()"
+    ></p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog
+  [header]="DialogTitle"
+  [(visible)]="changeFolderDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [style]="{ width: '50rem', height: '26rem', overflow: 'auto' }"
+  [contentStyle]="{ padding: '1.5rem' }"
+  [dismissableMask]="false"
+  [closable]="false"
+  [maximizable]="true"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [resizable]="true"
+>
+  @if(DialogDescription.length > 0) {
+  <p>
+    {{ DialogDescription }}
+  </p>
+  }
+   <p-floatLabel>
+      <input
+        type="text"
+        pInputText
+        [(ngModel)]="userFolderNameValue"
+        style="width: 100%;" 
+        [class.ng-invalid]="userFolderNameValue === '' || userFolderNameValue === undefined"
+        [class.ng-dirty]="userFolderNameValue === '' || userFolderNameValue === undefined"/>
+      <label>Folder Name</label>
+    </p-floatLabel>
+
+    <p-divider></p-divider>
+
+  <p-floatLabel>
+    <p-treeSelect
+      [placeholder]="'Select language'"
+      [(ngModel)]="selectedNodeLanguage"
+      [options]="languagesAsTreeNodes"
+      [containerStyle]="{ width: '100%' }"
+      [class.ng-invalid]="selectedNodeLanguage === null || selectedNodeLanguage === undefined"
+      [class.ng-dirty]="selectedNodeLanguage === null || selectedNodeLanguage === undefined"
+      [virtualScroll]="true" 
+      [virtualScrollItemSize]="48" 
+      [virtualScrollOptions]="{scrollHeight: '250px'}"
+      [filter]="true" 
+      [filterInputAutoFocus]="true"
+      variant="outlined"
+      appendTo="body"
+    >
+    </p-treeSelect>
+    <label>
+      Select default language
+    </label>
+</p-floatLabel>
+
+  <p-footer>
+    <p-button
+      label="Cancel"
+      class="p-button-text"
+      [outlined]="true"
+      (click)="onChangeFolderCancel(true)"
+    ></p-button>
+    <p-button
+      label="Save"
+      class="p-button-text"
+      (click)="onChangeFolderSave()"
     ></p-button>
   </p-footer>
 </p-dialog>
@@ -165,6 +235,3 @@
 <p-toast position="bottom-right" key="br"></p-toast>
 
 <p-confirmDialog />
-
-
-

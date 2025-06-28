@@ -15,7 +15,14 @@ import { FloatLabelModule } from "primeng/floatlabel";
 import { DropdownModule } from "primeng/dropdown";
 import { ContextMenuModule } from "primeng/contextmenu";
 import { CheckboxModule } from 'primeng/checkbox';
-import { TreeNode, MessageService, MenuItem, ConfirmationService } from "primeng/api";
+import { DragDropModule } from 'primeng/dragdrop';
+import { 
+  TreeNode, 
+  MessageService,
+  MenuItem, 
+  ConfirmationService,
+  TreeDragDropService
+   } from "primeng/api";
 import { FolderHelperService } from "../../../services/main/folder-helper.service";
 import { LanguageService } from "../../../services/main/language.service";
 import { type Language } from "../../../models/main/base/language.model";
@@ -42,13 +49,15 @@ import { type ResponsiveModel } from "../../../models/theme/responsive.model";
     FormsModule,
     DropdownModule,
     ContextMenuModule,
-    CheckboxModule
+    CheckboxModule,
+    DragDropModule
   ],
   templateUrl: "./folders.component.html",
   styleUrl: "./folders.component.css",
   providers: [
     MessageService,
-    ConfirmationService
+    ConfirmationService,
+    TreeDragDropService
   ]
 })
 export class FoldersComponent implements OnInit {
@@ -67,8 +76,9 @@ export class FoldersComponent implements OnInit {
   cmItems: MenuItem[] = [];
   filterValue: any;
   addFolderDialogVisible: boolean = false;
+  changeFolderDialogVisible: boolean = false;
   isAddRootFolder: boolean = false;
-  userAddFolderNameValue: string = '';
+  userFolderNameValue: string = '';
   DialogTitle: string = '';
   DialogDescription: string = '';
   languages: Language[] = [];
@@ -169,7 +179,8 @@ export class FoldersComponent implements OnInit {
       },
       {
         label: "Properties",
-        icon: "pi pi-fw pi-pencil"
+        icon: "pi pi-fw pi-pencil",
+        command: () => this.showChangeFolderDialog()
       },
       {
         label: "Delete",
@@ -209,7 +220,7 @@ export class FoldersComponent implements OnInit {
   }
   public onSaveGlobalAddFolder() {
     const errorMessages: string[] = [];
-    if (!this.userAddFolderNameValue || this.userAddFolderNameValue === '') {
+    if (!this.userFolderNameValue || this.userFolderNameValue === '') {
       errorMessages.push('Please enter a folder name');
     }
 
@@ -229,7 +240,7 @@ export class FoldersComponent implements OnInit {
     else {
 
       this.folderService.addFolder({
-        Name: this.userAddFolderNameValue,
+        Name: this.userFolderNameValue,
         ParentId: this.selectedNodeFolder ? this.selectedNodeFolder.data.Id : null,
         LanguageId: this.selectedNodeLanguage.data.Id,
         LanguageKey: this.selectedNodeLanguage.data.Key,
@@ -245,7 +256,7 @@ export class FoldersComponent implements OnInit {
     this.DialogTitle = '';
     this.isAddRootFolder = false;
     this.addFolderDialogVisible = false; 
-    this.userAddFolderNameValue = '';
+    this.userFolderNameValue = '';
     this.selectedNodeFolder = undefined;
     this.selectedNodeLanguage = undefined;
     if(showError)
@@ -281,8 +292,6 @@ export class FoldersComponent implements OnInit {
   }
 
   public confirmDelete() {
-   
-
     this.confirmationService.confirm({
       message: 'Are you sure you want to delete this folder?',
       header: 'Delete Folder',
@@ -305,5 +314,56 @@ export class FoldersComponent implements OnInit {
         this.notify.add({ severity: "info", summary: "Information", detail: "Folder deletion canceled", key: 'br', life: 3000 });
       }
     });
+  }
+
+  public showChangeFolderDialog() {
+    if(!this.selectedFolder){
+      this.notify.add({ severity: "error", summary: "Error", detail: "Please select a folder", key: 'br', sticky: true });
+      return;
+    }
+
+    this.DialogTitle = 'Properties';
+    this.DialogDescription = '';
+    this.changeFolderDialogVisible = true;
+    this.userFolderNameValue = this.selectedFolder ? this.selectedFolder.data.Name : '';
+    this.selectedNodeLanguage = this.languagesAsTreeNodes.find(node => node.data.Id === this.selectedFolder!.data.LanguageId);
+  }
+
+ public onChangeFolderSave() {
+   const errorMessages: string[] = [];
+   if(!this.selectedFolder) {
+     errorMessages.push('Please select a folder');
+   }
+   if (!this.userFolderNameValue || this.userFolderNameValue === '') {
+     errorMessages.push('Please enter a folder name');
+   }
+   if (!this.selectedNodeLanguage || this.selectedNodeLanguage === undefined) {
+     errorMessages.push('Please select a default language');
+   }
+ 
+   if (errorMessages.length > 0) {
+     errorMessages.forEach(err =>
+       this.notify.add({ severity: "error", summary: "Error",  detail: err, key: 'br', sticky: true })
+     );
+     return;
+   }
+   else {
+    this.folderService.changePropertiesFolder(this.selectedFolder!.data.Id, this.userFolderNameValue, this.selectedNodeLanguage.data.Id).then(() => {
+      this.onChangeFolderCancel(false);
+    })
+   }
+ }
+
+  public onChangeFolderCancel (showError: boolean) {
+    this.DialogTitle = '';
+    this.DialogDescription = '';
+    this.changeFolderDialogVisible = false;
+    this.userFolderNameValue = '';
+    this.selectedNodeLanguage = undefined;
+
+    if(showError)
+      this.notify.add({ severity: "info", summary: "Information", detail: "Folder change canceled", key: 'br', life: 3000 });
+    else
+      this.notify.add({ severity: "success", summary: "Success", detail: "Folder changed", key: 'br', life: 3000 });
   }
 }

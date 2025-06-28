@@ -1,4 +1,4 @@
-import { Injectable, OnInit, NgZone, inject } from "@angular/core";
+import { Injectable, NgZone, inject } from "@angular/core";
 import { BehaviorSubject, fromEvent } from "rxjs";
 import { debounceTime } from "rxjs/operators";
 import { ResponsiveModel } from "../../models/theme/responsive.model";
