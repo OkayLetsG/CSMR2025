@@ -15,14 +15,11 @@ import { FloatLabelModule } from "primeng/floatlabel";
 import { DropdownModule } from "primeng/dropdown";
 import { ContextMenuModule } from "primeng/contextmenu";
 import { CheckboxModule } from 'primeng/checkbox';
-import { DragDropModule } from 'primeng/dragdrop';
 import { 
   TreeNode, 
   MessageService,
   MenuItem, 
-  ConfirmationService,
-  TreeDragDropService,
-  TreeNodeDragEvent
+  ConfirmationService
    } from "primeng/api";
 import { FolderHelperService } from "../../../services/main/folder-helper.service";
 import { LanguageService } from "../../../services/main/language.service";
@@ -52,15 +49,13 @@ import { type ResponsiveModel } from "../../../models/theme/responsive.model";
     FormsModule,
     DropdownModule,
     ContextMenuModule,
-    CheckboxModule,
-    DragDropModule
+    CheckboxModule
   ],
   templateUrl: "./folders.component.html",
   styleUrl: "./folders.component.css",
   providers: [
     MessageService,
-    ConfirmationService,
-    TreeDragDropService
+    ConfirmationService
   ]
 })
 export class FoldersComponent implements OnInit {
@@ -70,7 +65,6 @@ export class FoldersComponent implements OnInit {
   private responsiveService = inject(ResponsiveService);
   private notify = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
-  treeDragDrop = inject(TreeDragDropService);
   folders: TreeNode[] = [];
   selectedFolder: any; 
   selectedNodeFolder: TreeNode | undefined;
@@ -117,15 +111,6 @@ export class FoldersComponent implements OnInit {
     this.responsiveService.size$.subscribe((size) => {
       this.windowValues = size;
     })
-
-    console.log('TreeDragDropService:', this.treeDragDrop);
-    this.treeDragDrop.dragStart$.subscribe(event => {
-      console.log('Drag started via service:', event);
-    });
-    
-    this.treeDragDrop.dragStop$.subscribe(event => {
-      console.log('Drag stopped via service:', event);
-    });
   }
 
   public nodeSelect() {
