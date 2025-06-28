@@ -33,9 +33,9 @@
   filterMode="lenient"
   selectionMode="single"
   [(selection)]="selectedFolder"
-  [draggableNodes]="true"
-  [droppableNodes]="true"
-  draggableScope="self" 
+  draggableNodes="true" 
+  droppableNodes="true"
+  draggableScope="self"
   droppableScope="self"
   (onNodeSelect)="nodeSelect()"
   (onNodeUnselect)="nodeUnselect()"
@@ -56,6 +56,7 @@
   }"
 >
 </p-tree>
+
 
 <p-contextMenu #cm [model]="cmItems">
 </p-contextMenu>

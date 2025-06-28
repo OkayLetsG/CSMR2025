@@ -108,6 +108,7 @@ export class FolderHelperService {
         .execute(sql, [newFolder.Name, newFolder.ParentId, guid, newFolder.LanguageId, timestamp, timestamp])
         .then((result: any) => {
           const newNode: TreeNode = {
+            key: guid,
             label: newFolder.Name,
             data: {
               Id: result.lastInsertId,
@@ -257,6 +258,7 @@ export class FolderHelperService {
 
   folders.forEach(f => {
     map.set(f.Id, {
+      key: f.Guid,
       label: f.Name,
       data: f,
       children: []

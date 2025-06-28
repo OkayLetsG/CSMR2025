@@ -5,7 +5,7 @@ import { ButtonModule } from "primeng/button";
 import { IconFieldModule } from "primeng/iconfield";
 import { InputIconModule } from "primeng/inputicon";
 import { InputTextModule } from "primeng/inputtext";
-import { TreeModule } from "primeng/tree";
+import { TreeModule, TreeNodeDropEvent} from "primeng/tree";
 import { TreeSelectModule } from "primeng/treeselect";
 import { DialogModule } from "primeng/dialog";
 import { DividerModule } from "primeng/divider";
@@ -21,7 +21,8 @@ import {
   MessageService,
   MenuItem, 
   ConfirmationService,
-  TreeDragDropService
+  TreeDragDropService,
+  TreeNodeDragEvent
    } from "primeng/api";
 import { FolderHelperService } from "../../../services/main/folder-helper.service";
 import { LanguageService } from "../../../services/main/language.service";
@@ -29,6 +30,8 @@ import { type Language } from "../../../models/main/base/language.model";
 import { type AddFolder } from '../../../models/main/base/addFolder.model';
 import { ResponsiveService } from "../../../services/theme/responsive.service";
 import { type ResponsiveModel } from "../../../models/theme/responsive.model";
+
+
 
 @Component({
   selector: "app-folders",
@@ -61,14 +64,16 @@ import { type ResponsiveModel } from "../../../models/theme/responsive.model";
   ]
 })
 export class FoldersComponent implements OnInit {
+
   private folderService = inject(FolderHelperService);
   private languageService = inject(LanguageService);
   private responsiveService = inject(ResponsiveService);
   private notify = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+  treeDragDrop = inject(TreeDragDropService);
   folders: TreeNode[] = [];
-  selectedFolder: TreeNode | undefined; 
-  selectedNodeFolder: any;
+  selectedFolder: any; 
+  selectedNodeFolder: TreeNode | undefined;
   selectedNodeLanguage: any;
   originalFolders: TreeNode[] = [];
   treeSelect: TreeNode[] = [];
@@ -112,6 +117,15 @@ export class FoldersComponent implements OnInit {
     this.responsiveService.size$.subscribe((size) => {
       this.windowValues = size;
     })
+
+    console.log('TreeDragDropService:', this.treeDragDrop);
+    this.treeDragDrop.dragStart$.subscribe(event => {
+      console.log('Drag started via service:', event);
+    });
+    
+    this.treeDragDrop.dragStop$.subscribe(event => {
+      console.log('Drag stopped via service:', event);
+    });
   }
 
   public nodeSelect() {
@@ -176,6 +190,10 @@ export class FoldersComponent implements OnInit {
       {
         label: "Add Snippet",
         icon: "pi pi-file-plus"
+      },
+      {
+        label: "Move Folder",
+        icon: "pi pi-fw pi-arrow-right",
       },
       {
         label: "Properties",
