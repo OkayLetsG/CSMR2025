@@ -1,11 +1,11 @@
-import { Component, OnInit, inject } from "@angular/core";
+import { Component, OnInit, inject , Renderer2, Inject, ViewEncapsulation} from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { SplitButtonModule } from "primeng/splitbutton";
 import { ButtonModule } from "primeng/button";
 import { IconFieldModule } from "primeng/iconfield";
 import { InputIconModule } from "primeng/inputicon";
 import { InputTextModule } from "primeng/inputtext";
-import { TreeModule, TreeNodeDropEvent} from "primeng/tree";
+import { TreeModule} from "primeng/tree";
 import { TreeSelectModule } from "primeng/treeselect";
 import { DialogModule } from "primeng/dialog";
 import { DividerModule } from "primeng/divider";
@@ -90,7 +90,7 @@ export class FoldersComponent implements OnInit {
   ngOnInit(): void {
     this.setupSplitButton();
     this.setupContextMenu();
-    this.folderService.getFolders();
+    this.folderService.getFolders(); 
     this.languageService.loadLanguages();
 
     this.folderService.folders$.subscribe((nodes) => {
