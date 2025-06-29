@@ -1,4 +1,4 @@
-import { Component, OnInit, inject , Renderer2, Inject, ViewEncapsulation} from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { SplitButtonModule } from "primeng/splitbutton";
 import { ButtonModule } from "primeng/button";
@@ -179,7 +179,7 @@ export class FoldersComponent implements OnInit {
       {
         label: "Move Folder",
         icon: "pi pi-fw pi-arrow-right",
-      },
+      }, 
       {
         label: "Properties",
         icon: "pi pi-fw pi-pencil",
