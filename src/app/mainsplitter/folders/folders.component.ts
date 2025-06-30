@@ -64,6 +64,7 @@ export class FoldersComponent implements OnInit {
   private responsiveService = inject(ResponsiveService);
   private notify = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+  isLoading: boolean = false;
   folders: TreeNode[] = [];
   selectedFolder: any; 
   selectedNodeFolder: TreeNode | undefined;

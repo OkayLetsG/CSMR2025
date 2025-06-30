@@ -38,6 +38,10 @@
   [virtualScroll]="true"
   [virtualScrollItemSize]="48"
   [scrollHeight]="(windowValues.height - 105) + 'px'"
+  [loading]="isLoading"
+  [loadingIcon]="'pi pi-spin pi-spinner'"
+  [loadingMode]="'icon'"
+  [emptyMessage]="'NO FOLDERS'"
   [style]="{
     height: '{{this.windowValues.height}}px',
     overflowY: 'auto',
@@ -49,7 +53,7 @@
     overflow: 'auto', 
     fontSize: '14px',
     fontWeight: 'bold'
-  }" 
+  }"
 >
 </p-tree>
 
