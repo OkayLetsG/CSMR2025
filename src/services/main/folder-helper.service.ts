@@ -6,6 +6,7 @@ import { type Folder } from "../../models/main/base/folder.model";
 import { type RawFolder } from "../../models/main/raw/raw.folder.model";
 import { type AddFolder } from "../../models/main/base/addFolder.model";
 import { v4 as uuid } from 'uuid';
+import { message } from '@tauri-apps/plugin-dialog';
 
 @Injectable({
   providedIn: "root",
@@ -86,6 +87,7 @@ export class FolderHelperService {
     catch(ex) {
       console.error(ex);
       this._folders.next([]);
+      await message('Could not load folders: \n' + ex, { title: 'Error', kind: 'error' });
     }
   }
    
@@ -220,18 +222,32 @@ export class FolderHelperService {
     });
   }
   
-  public async updateFolderParent(folderId: number, parentId: number|undefined): Promise<void> {
+  public async updateFolderParents(foldersToMove: { folderId: number, parentId: number|undefined }[]): Promise<void> {
     return new Promise((resolve, reject) => {
-      const parentIdToUpdate = parentId === undefined ? null : parentId;
-      const sql = `UPDATE FOLDERS SET FPARENT_ID = ? WHERE FID = ?`;
+      const sql = `UPDATE FOLDERS SET FPARENT_ID = CASE FID ${foldersToMove.map(({folderId, parentId}) => `WHEN ? THEN ${parentId === undefined ? 'NULL' : '?'} `).join('')} END WHERE FID IN (${foldersToMove.map(({folderId}) => '?').join(', ')})`;
+      const values: any[] = [];
+      foldersToMove.forEach(({folderId, parentId}) => {
+        values.push(folderId);
+        if (parentId !== undefined) {
+          values.push(parentId);
+        }
+      });
       this.dbHelper.db
-        .execute(sql, [parentIdToUpdate, folderId])
+        .execute(sql, values)
         .then(() => {
-          const updatedFolders = this.updateNodeParentInTree(
-            this._folders.getValue(),
-            folderId,
-            parentId
-          );
+          const updatedFolders = this._folders.getValue().map(node => {
+            const folderToMove = foldersToMove.find(f => f.folderId === node.data.Id);
+            if (folderToMove) {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  ParentId: folderToMove.parentId
+                }
+              };
+            }
+            return node;
+          });
           this._folders.next(updatedFolders);
   
           this.isFoldersSortedAscending

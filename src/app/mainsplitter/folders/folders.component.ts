@@ -84,7 +84,12 @@ export class FoldersComponent implements OnInit {
   windowValues: ResponsiveModel = {
     width: window.innerWidth,
     height: window.innerHeight,
-  }
+  };
+  moveFolderDialog: boolean = false;
+  isMoveToRoot: boolean = false;
+  selectedFoldersToMove: TreeNode[] | undefined = [];
+  multipleTreeSelect: TreeNode[] = [];
+  destinationFolder: TreeNode | undefined = undefined;
 
   ngOnInit(): void {
     this.setupSplitButton();
@@ -96,6 +101,7 @@ export class FoldersComponent implements OnInit {
       this.folders = nodes;
       this.originalFolders = nodes;
       this.treeSelect = this.cloneTreeNodes(nodes);
+      this.multipleTreeSelect = this.cloneTreeNodes(nodes);
     });
 
     this.languageService.languages$.subscribe((l) => {
@@ -151,6 +157,11 @@ export class FoldersComponent implements OnInit {
 
   private setupSplitButton() {
     this.sbItems = [
+        {
+        label: "Move Folders",
+        icon: "pi pi-fw pi-arrow-right",
+        command: () => this.showMoveFoldersDialog(true)
+      },
       {
         label: "Sort Ascending",
         icon: "pi pi-fw pi-sort-alpha-down",
@@ -178,6 +189,7 @@ export class FoldersComponent implements OnInit {
       {
         label: "Move Folder",
         icon: "pi pi-fw pi-arrow-right",
+        command: () => this.showMoveFoldersDialog(false)
       }, 
       {
         label: "Properties",
@@ -367,5 +379,33 @@ export class FoldersComponent implements OnInit {
       this.notify.add({ severity: "info", summary: "Information", detail: "Folder change canceled", key: 'br', life: 3000 });
     else
       this.notify.add({ severity: "success", summary: "Success", detail: "Folder changed", key: 'br', life: 3000 });
+  }
+
+  public showMoveFoldersDialog(isMultiple: boolean) {
+    this.moveFolderDialog = true;
+    this.DialogTitle = 'Move Folders';
+    this.DialogDescription = '';
+  }
+
+  onMoveFolders() {
+    const errorMessages: string[] = [];
+    if(this.selectedFoldersToMove === null || this.selectedFoldersToMove === undefined) {
+      errorMessages.push('Please select folders to move');
+    }
+
+  }
+
+  onCancelMoveFolders(showError: boolean) {
+    this.moveFolderDialog = false;
+    this.DialogTitle = '';
+    this.DialogDescription = '';
+    if(showError)
+      this.notify.add({ severity: "info", summary: "Information", detail: "Folder move canceled", key: 'br', life: 3000 });
+    else
+      this.notify.add({ severity: "success", summary: "Success", detail: "Folder moved", key: 'br', life: 3000 });
+  }
+
+  onChangeMoveAsCheckboxRootFolder() {
+    
   }
 }

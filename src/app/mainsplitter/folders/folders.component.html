@@ -46,7 +46,7 @@
     width: '100%',
     border: '0px',
     borderRadius: '0px',
-    overflow: 'auto',
+    overflow: 'auto', 
     fontSize: '14px',
     fontWeight: 'bold'
   }" 
@@ -225,6 +225,99 @@
       label="Save"
       class="p-button-text"
       (click)="onChangeFolderSave()"
+    ></p-button>
+  </p-footer>
+</p-dialog>
+
+<p-dialog
+  [header]="DialogTitle"
+  [(visible)]="moveFolderDialog"
+  [modal]="true"
+  [draggable]="false"
+  [style]="{ width: '50rem', height: '26rem', overflow: 'auto' }"
+  [contentStyle]="{ padding: '1.5rem' }"
+  [dismissableMask]="false"
+  [closable]="false"
+  [maximizable]="true"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [resizable]="true"
+>
+  @if(DialogDescription.length > 0) {
+  <p>
+    {{ DialogDescription }}
+  </p>
+  }
+
+  <p-floatLabel>
+    <p-treeSelect
+      [placeholder]="'Select Folders'"
+      [(ngModel)]="selectedFoldersToMove"
+      [options]="multipleTreeSelect"
+      [containerStyle]="{ width: '100%' }"
+      [class.ng-invalid]="selectedFoldersToMove === null || selectedFoldersToMove === undefined || selectedFoldersToMove.length === 0"
+      [class.ng-dirty]="selectedFoldersToMove === null || selectedFoldersToMove === undefined || selectedFoldersToMove.length === 0"
+      [virtualScroll]="true" 
+      [virtualScrollItemSize]="48" 
+      [virtualScrollOptions]="{scrollHeight: '250px'}"
+      [filter]="true" 
+      [filterInputAutoFocus]="true"
+      variant="outlined"
+      appendTo="body"
+      selectionMode="checkbox"
+      display="chip"
+    >
+    </p-treeSelect>
+    <label>
+      Where
+    </label>
+  </p-floatLabel> 
+
+  <p-divider></p-divider>
+
+    <div style="display: flex; align-items: center; width: 100%; gap: 1rem;">
+      <div style="flex: 1;">
+    <p-floatLabel>
+      <p-treeSelect
+      [placeholder]="'Select Folders'"
+      [(ngModel)]="destinationFolder"
+      [options]="multipleTreeSelect"
+      [containerStyle]="{ width: '100%' }"
+      [class.ng-invalid]="destinationFolder === null || destinationFolder === undefined"
+      [class.ng-dirty]="destinationFolder === null || destinationFolder === undefined"
+      [virtualScroll]="true" 
+      [virtualScrollItemSize]="48" 
+      [virtualScrollOptions]="{scrollHeight: '250px'}"
+      [filter]="true" 
+      [filterInputAutoFocus]="true"
+      variant="outlined"
+      appendTo="body"
+    >
+    </p-treeSelect>
+      <label>Into</label>
+    </p-floatLabel>
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;">
+      <p-checkbox
+        [(ngModel)]="isMoveToRoot"
+        inputId="rootMoveFolderCheckbox"
+        [binary]="true"
+        (ngModelChange)="onChangeMoveAsCheckboxRootFolder()">
+      </p-checkbox>
+      <label>Root Folder</label>
+    </div>
+  </div>
+
+   <p-footer>
+    <p-button
+      label="Cancel"
+      class="p-button-text"
+      [outlined]="true"
+      (click)="onCancelMoveFolders(true)"
+    ></p-button>
+    <p-button
+      label="Save"
+      class="p-button-text"
+      (click)="onMoveFolders()"
     ></p-button>
   </p-footer>
 </p-dialog>

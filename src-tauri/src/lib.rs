@@ -1,6 +1,6 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-use tauri_plugin_sql::{Builder, Migration, MigrationKind};
 use tauri::Manager;
+use tauri_plugin_sql::{Builder, Migration, MigrationKind};
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -756,6 +756,7 @@ pub fn run() {
         }
     ];
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .plugin(
             tauri_plugin_sql::Builder::default()
                 .add_migrations("sqlite:csmremasterd2025_database.db", _migrations)
