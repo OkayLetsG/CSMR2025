@@ -29,7 +29,6 @@ import { ResponsiveService } from "../../../services/theme/responsive.service";
 import { type ResponsiveModel } from "../../../models/theme/responsive.model";
 
 
-
 @Component({
   selector: "app-folders",
   standalone: true,
@@ -110,7 +109,7 @@ export class FoldersComponent implements OnInit {
  
     this.responsiveService.size$.subscribe((size) => {
       this.windowValues = size;
-    })
+    });
   }
 
   public nodeSelect() {
