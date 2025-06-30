@@ -221,45 +221,122 @@ export class FolderHelperService {
         });
     });
   }
-  
-  public async updateFolderParents(foldersToMove: { folderId: number, parentId: number|undefined }[]): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const sql = `UPDATE FOLDERS SET FPARENT_ID = CASE FID ${foldersToMove.map(({folderId, parentId}) => `WHEN ? THEN ${parentId === undefined ? 'NULL' : '?'} `).join('')} END WHERE FID IN (${foldersToMove.map(({folderId}) => '?').join(', ')})`;
-      const values: any[] = [];
-      foldersToMove.forEach(({folderId, parentId}) => {
-        values.push(folderId);
-        if (parentId !== undefined) {
-          values.push(parentId);
-        }
+
+ public async updateFolderParents(foldersToMove: { folderId: number, parentId: number | undefined }[]): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const sql = `UPDATE FOLDERS SET FPARENT_ID = CASE FID ${
+      foldersToMove.map(({ folderId, parentId }) =>
+        `WHEN ? THEN ${parentId === undefined ? 'NULL' : '?'}`
+      ).join(' ')
+    } END WHERE FID IN (${foldersToMove.map(() => '?').join(', ')})`;
+
+    console.log('Generated SQL:', sql);
+
+    const values: any[] = [];
+
+    foldersToMove.forEach(({ folderId, parentId }) => {
+      values.push(folderId);
+      if (parentId !== undefined) {
+        values.push(parentId);
+      }
+    });
+
+    foldersToMove.forEach(({ folderId }) => {
+      values.push(folderId);
+    });
+
+    this.dbHelper.db
+      .execute(sql, values)
+      .then(() => {
+        const updatedTree = this.moveFoldersInTree(this._folders.getValue(), foldersToMove);
+        this._folders.next(updatedTree);
+
+        this.isFoldersSortedAscending
+          ? this.sortFoldersASC(this.isFoldersSortedAscending)
+          : this.sortFoldersDESC(this.isFoldersSortedAscending);
+
+        resolve();
+      })
+      .catch((error: any) => {
+        reject(error);
       });
-      this.dbHelper.db
-        .execute(sql, values)
-        .then(() => {
-          const updatedFolders = this._folders.getValue().map(node => {
-            const folderToMove = foldersToMove.find(f => f.folderId === node.data.Id);
-            if (folderToMove) {
-              return {
-                ...node,
-                data: {
-                  ...node.data,
-                  ParentId: folderToMove.parentId
-                }
-              };
-            }
-            return node;
-          });
-          this._folders.next(updatedFolders);
-  
-          this.isFoldersSortedAscending
-            ? this.sortFoldersASC(this.isFoldersSortedAscending)
-            : this.sortFoldersDESC(this.isFoldersSortedAscending);
-          resolve();
-        })
-        .catch((error: any) => {
-          reject(error);
-        })
-    })
+  });
+}
+
+private moveFoldersInTree(
+  tree: TreeNode[],
+  foldersToMove: { folderId: number; parentId: number | undefined }[]
+): TreeNode[] {
+  const allNodes = this.flattenTree(tree);
+  const nodeMap = new Map<number, TreeNode>();
+
+  allNodes.forEach(node => {
+    nodeMap.set(node.data.Id, { ...node, children: [] });
+  });
+
+  foldersToMove.forEach(({ folderId, parentId }) => {
+    const node = nodeMap.get(folderId);
+    if (node) {
+      node.data = { ...node.data, ParentId: parentId };
+    }
+  });
+
+  const newTree: TreeNode[] = [];
+  nodeMap.forEach(node => {
+    const parentId = node.data.ParentId;
+    if (parentId === undefined || !nodeMap.has(parentId)) {
+      newTree.push(node); // Root node
+    } else {
+      const parent = nodeMap.get(parentId)!;
+      parent.children = parent.children || [];
+      parent.children.push(node);
+    }
+  });
+
+  return newTree;
+}
+
+
+private flattenTree(nodes: TreeNode[]): TreeNode[] {
+  const result: TreeNode[] = [];
+  const stack = [...nodes];
+
+  while (stack.length > 0) {
+    const node = stack.pop()!;
+    result.push(node);
+    if (node.children) {
+      stack.push(...node.children);
+    }
   }
+
+  return result;
+}
+
+private updateParentsNodeInTree(
+  folders: TreeNode[],
+  foldersToMove: { folderId: number; parentId: number | undefined }[]
+): TreeNode[] {
+  return folders.map((node) => {
+    const folderToMove = foldersToMove.find((f) => f.folderId === node.data.Id);
+
+    const updatedData = {
+      ...node.data,
+      ...(folderToMove ? { ParentId: folderToMove.parentId } : {})
+    };
+
+    const updatedChildren = node.children
+      ? this.updateParentsNodeInTree(node.children, foldersToMove)
+      : [];
+
+    return {
+      ...node,
+      data: updatedData,
+      children: updatedChildren
+    };
+  });
+}
+
+
   /**
    * 
    * @param folders 

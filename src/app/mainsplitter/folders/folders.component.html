@@ -263,7 +263,7 @@
       [filterInputAutoFocus]="true"
       variant="outlined"
       appendTo="body"
-      selectionMode="checkbox"
+      selectionMode="multiple"
       display="chip"
     >
     </p-treeSelect>
@@ -276,25 +276,26 @@
 
     <div style="display: flex; align-items: center; width: 100%; gap: 1rem;">
       <div style="flex: 1;">
-    <p-floatLabel>
-      <p-treeSelect
-      [placeholder]="'Select Folders'"
-      [(ngModel)]="destinationFolder"
-      [options]="multipleTreeSelect"
-      [containerStyle]="{ width: '100%' }"
-      [class.ng-invalid]="destinationFolder === null || destinationFolder === undefined"
-      [class.ng-dirty]="destinationFolder === null || destinationFolder === undefined"
-      [virtualScroll]="true" 
-      [virtualScrollItemSize]="48" 
-      [virtualScrollOptions]="{scrollHeight: '250px'}"
-      [filter]="true" 
-      [filterInputAutoFocus]="true"
-      variant="outlined"
-      appendTo="body"
-    >
-    </p-treeSelect>
-      <label>Into</label>
-    </p-floatLabel>
+        <p-floatLabel>
+          <p-treeSelect
+            [placeholder]="'Select Folders'"
+            [(ngModel)]="destinationFolder"
+            [options]="multipleTreeSelect"
+            [containerStyle]="{ width: '100%' }"
+            [class.ng-invalid]="destinationFolder === null || destinationFolder === undefined"
+            [class.ng-dirty]="destinationFolder === null || destinationFolder === undefined"
+            [virtualScroll]="true" 
+            [virtualScrollItemSize]="48" 
+            [virtualScrollOptions]="{scrollHeight: '250px'}"
+            [filter]="true" 
+            [filterInputAutoFocus]="true"
+            variant="outlined"
+            appendTo="body"
+            [disabled]="isMoveToRoot"
+          >
+          </p-treeSelect>
+          <label>Into</label>
+        </p-floatLabel>
     </div>
     <div style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;">
       <p-checkbox

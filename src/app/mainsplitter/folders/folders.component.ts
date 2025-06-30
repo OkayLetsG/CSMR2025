@@ -393,12 +393,46 @@ export class FoldersComponent implements OnInit {
       errorMessages.push('Please select folders to move');
     }
 
+    if((this.destinationFolder === null || this.destinationFolder === undefined) && !this.isMoveToRoot) {
+      errorMessages.push('Please select a destination folder');
+    }
+
+    if(errorMessages.length > 0) {
+      errorMessages.forEach(err =>
+        this.notify.add({ severity: "error", summary: "Error",  detail: err, key: 'br', sticky: true })
+      );
+      return;
+    }
+    else {
+      const newParentId = this.isMoveToRoot ? undefined : this.destinationFolder!.data.Id;
+      console.log('newParentId', newParentId);
+      const folderIds = this.selectedFoldersToMove?.map(folder => folder.data.Id);
+      console.log('folderIds', folderIds);
+      const foldersToMove: { folderId: number, parentId: number|undefined }[] = folderIds?.map(folderId => ({ folderId, parentId: newParentId })) || [];
+      console.log('foldersToMove', foldersToMove);
+      if(foldersToMove.length > 0) {
+        this.folderService.updateFolderParents(foldersToMove).then(() => {
+          this.onCancelMoveFolders(false);
+        })
+      }
+      else {
+        this.notify.add({ severity: "info", summary: "Information", detail: "No folders to move", key: 'br', life: 3000 });
+        return;
+      }
+    }
   }
 
   onCancelMoveFolders(showError: boolean) {
+    console.log('this.selectedFoldersToMove', this.selectedFoldersToMove);
+    console.log('this.destinationFolder', this.destinationFolder);
+
     this.moveFolderDialog = false;
     this.DialogTitle = '';
     this.DialogDescription = '';
+    this.selectedFoldersToMove = undefined;
+    this.destinationFolder = undefined;
+    this.isMoveToRoot = false;
+
     if(showError)
       this.notify.add({ severity: "info", summary: "Information", detail: "Folder move canceled", key: 'br', life: 3000 });
     else
@@ -406,6 +440,8 @@ export class FoldersComponent implements OnInit {
   }
 
   onChangeMoveAsCheckboxRootFolder() {
-    
+    if(this.isMoveToRoot) {
+      this.destinationFolder = undefined;
+    }
   }
 }
