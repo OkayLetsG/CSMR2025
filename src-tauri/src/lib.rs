@@ -10,6 +10,7 @@ fn greet(name: &str) -> String {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let _migrations = vec![
+        // FPIN: 0 = not pinned, -1 = pinned
         Migration {
             version: 1,
             description: "created_folders_table",
@@ -21,8 +22,8 @@ pub fn run() {
 									FMODIFIED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                     FLID INTEGER,
                                     FGUID TEXT NOT NULL,
-									FOREIGN KEY (FPARENT_ID) REFERENCES FOLDERS(FID) ON DELETE CASCADE,
-                                    FOREIGN KEY (FPARENT_ID) REFERENCES FOLDERS(FID) ON UPDATE CASCADE
+                                    FPIN INTEGER DEFAULT 0,
+									FOREIGN KEY (FPARENT_ID) REFERENCES FOLDERS(FID) ON DELETE CASCADE ON UPDATE CASCADE,
                                     FOREIGN KEY (FLID) REFERENCES LANGUAGES(LID) ON DELETE CASCADE
                 )",
             kind: MigrationKind::Up,
@@ -59,6 +60,8 @@ pub fn run() {
 								)",
             kind: MigrationKind::Up,
         },
+        // LSHOW: -1 = show, 0 = hidden
+        // LALLOW_DELETE: 0 = no, -1 = yes
         Migration {
             version: 4,
             description: "create_languages_table",
@@ -752,6 +755,93 @@ pub fn run() {
             sql: "INSERT INTO LANGUAGES (LKEY, LNAME)
                   VALUES ('json','JSON')
                    ON CONFLICT(LKEY, LNAME) DO NOTHING",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 90,
+            description: "added_folder_language_delete_fallback_trigger",
+            sql: "CREATE TRIGGER IF NOT EXISTS folders_language_fallback
+                    BEFORE DELETE ON LANGUAGES
+                    WHEN OLD.LALLOW_DELETE = -1
+                    BEGIN
+                        UPDATE FOLDERS
+                        SET FLID = (
+                            SELECT LID FROM LANGUAGES
+                            WHERE LKEY = OLD.LKEY AND LALLOW_DELETE = 0
+                            LIMIT 1
+                        )
+                        WHERE FLID = OLD.LID;
+                    END;
+                ",
+        kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 91,
+            description: "added_snippet_language_delete_fallback_trigger",
+            sql: "CREATE TRIGGER IF NOT EXISTS snippets_language_fallback
+                    BEFORE DELETE ON LANGUAGES
+                    WHEN OLD.LALLOW_DELETE = -1
+                    BEGIN
+                        UPDATE SNIPPETS
+                        SET SLID = (
+                            SELECT LID FROM LANGUAGES
+                            WHERE LKEY = OLD.LKEY AND LALLOW_DELETE = 0
+                            LIMIT 1
+                        )
+                        WHERE SLID = OLD.LID;
+                    END;
+                ",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 92,
+            description: "prevented_deleting_standard_languages",
+            sql: "CREATE TRIGGER IF NOT EXISTS prevent_delete_standard_languages
+                    BEFORE DELETE ON LANGUAGES
+                    WHEN OLD.LALLOW_DELETE = 0
+                    BEGIN
+                        SELECT RAISE(ABORT, 'Cannot delete standard language');
+                    END;
+                ",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 93,
+            description: "added_indices_folders",
+            sql: "
+                CREATE INDEX IF NOT EXISTS idx_folders_flid ON FOLDERS(FLID);
+                CREATE INDEX IF NOT EXISTS idx_folders_fparent_id ON FOLDERS(FPARENT_ID);
+                CREATE INDEX IF NOT EXISTS idx_folders_fguid ON FOLDERS(FGUID);
+            ",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 94,
+            description: "added_indices_snippets",
+            sql: "
+                CREATE INDEX IF NOT EXISTS idx_snippets_sfid ON SNIPPETS(SFID);
+                CREATE INDEX IF NOT EXISTS idx_snippets_slid ON SNIPPETS(SLID);
+                CREATE INDEX IF NOT EXISTS idx_snippets_sguid ON SNIPPETS(SGUID);
+                CREATE INDEX IF NOT EXISTS idx_snippets_slname ON SNIPPETS(SLNAME);
+            ",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 95,
+            description: "added_indices_fragments",
+            sql: "
+                CREATE INDEX IF NOT EXISTS idx_fragments_frsid ON FRAGMENTS(FRSID);
+                CREATE INDEX IF NOT EXISTS idx_fragments_frguid ON FRAGMENTS(FRGUID);
+            ",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 96,
+            description: "added_indices_languages",
+            sql: "
+                CREATE INDEX IF NOT EXISTS idx_languages_lkey ON LANGUAGES(LKEY);
+                CREATE INDEX IF NOT EXISTS idx_languages_lallow_delete ON LANGUAGES(LALLOW_DELETE);
+            ",
             kind: MigrationKind::Up,
         }
     ];

@@ -99,10 +99,12 @@ export class FoldersComponent implements OnInit {
     this.languageService.loadLanguages();
 
     this.folderService.folders$.subscribe((nodes) => {
+      this.isLoading = true;
       this.folders = nodes;
       this.originalFolders = nodes;
       this.treeSelect = this.cloneTreeNodes(nodes);
       this.multipleTreeSelect = this.cloneTreeNodes(nodes);
+      this.isLoading = false;
     });
 
     this.languageService.languages$.subscribe((l) => {
@@ -133,13 +135,16 @@ export class FoldersComponent implements OnInit {
   }
 
   public applyFilter() {
+    this.isLoading = true;
     if(!this.filterValue) {
       this.folders = this.originalFolders;
+      this.isLoading = false;
       return;
     }
 
     const filteredNodes  = this.filterTreeNodes(this.originalFolders, this.filterValue.toLowerCase());
     this.folders = filteredNodes;
+    this.isLoading = false;
   }
 
   private filterTreeNodes(nodes: TreeNode[], searchText: string): TreeNode[] {
@@ -253,7 +258,7 @@ export class FoldersComponent implements OnInit {
       return;
     }
     else {
-
+      this.isLoading = true;
       this.folderService.addFolder({
         Name: this.userFolderNameValue,
         ParentId: this.selectedNodeFolder ? this.selectedNodeFolder.data.Id : null,
@@ -262,6 +267,7 @@ export class FoldersComponent implements OnInit {
         LanguageName: this.selectedNodeLanguage.data.Name
       } satisfies AddFolder).then(() => {
         this.onCancleAddFolder(false);
+        this.isLoading = false;
       });
     }
   }
@@ -317,12 +323,15 @@ export class FoldersComponent implements OnInit {
       rejectLabel: 'No',
       rejectButtonStyleClass: 'p-button-outlined',
       accept: () => {
+        this.isLoading = true;
         if(!this.selectedFolder) {
           this.notify.add({ severity: "error", summary: "Error", detail: "Please select a folder to delete", key: 'br', sticky: true });
+          this.isLoading = false;
           return;
         }
         this.folderService.deleteFolder(this.selectedFolder.data.Id).then(() => {
           this.notify.add({ severity: "success", summary: "Success", detail: "Folder deleted", key: 'br', life: 3000 });
+          this.isLoading = false;
         });
       },
       reject: () => {
@@ -363,8 +372,10 @@ export class FoldersComponent implements OnInit {
      return;
    }
    else {
+    this.isLoading = true;
     this.folderService.changePropertiesFolder(this.selectedFolder!.data.Id, this.userFolderNameValue, this.selectedNodeLanguage.data.Id).then(() => {
       this.onChangeFolderCancel(false);
+      this.isLoading = false;
     })
    }
  }
@@ -382,10 +393,13 @@ export class FoldersComponent implements OnInit {
       this.notify.add({ severity: "success", summary: "Success", detail: "Folder changed", key: 'br', life: 3000 });
   }
 
-  public showMoveFoldersDialog(isMultiple: boolean) {
+  public showMoveFoldersDialog(isGlobalMove: boolean) {
     this.moveFolderDialog = true;
     this.DialogTitle = 'Move Folders';
     this.DialogDescription = '';
+    if(this.selectedFolder && !isGlobalMove) {
+      this.selectedFoldersToMove = this.cloneTreeNodes([this.selectedFolder]);
+    }
   }
 
   onMoveFolders() {
@@ -405,6 +419,7 @@ export class FoldersComponent implements OnInit {
       return;
     }
     else {
+      this.isLoading = true;
       const newParentId = this.isMoveToRoot ? undefined : this.destinationFolder!.data.Id;
       console.log('newParentId', newParentId);
       const folderIds = this.selectedFoldersToMove?.map(folder => folder.data.Id);
@@ -414,10 +429,12 @@ export class FoldersComponent implements OnInit {
       if(foldersToMove.length > 0) {
         this.folderService.updateFolderParents(foldersToMove).then(() => {
           this.onCancelMoveFolders(false);
+          this.isLoading = false;
         })
       }
       else {
         this.notify.add({ severity: "info", summary: "Information", detail: "No folders to move", key: 'br', life: 3000 });
+        this.isLoading = false;
         return;
       }
     }
