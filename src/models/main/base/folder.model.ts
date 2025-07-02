@@ -12,6 +12,7 @@ export interface Folder {
   DefaultLanguageKey: string;
   DefaultLanguageName: string;
   LanguageId : number;
+  Pinned: number;
   CreatedAt: Date;
   UpdatedAt: Date;
 }

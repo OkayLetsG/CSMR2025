@@ -12,48 +12,12 @@ import { message } from '@tauri-apps/plugin-dialog';
   providedIn: "root",
 })
 export class FolderHelperService {
-
-  /**
-   * @member dbHelper
-   * 
-   * Injects the DbHelperService
-   */
   private dbHelper = inject(DbHelperService);
-
-  /**
-   * @member _folders
-   * 
-   * BehaviorSubject for the folders
-   */
   private _folders = new BehaviorSubject<TreeNode[]>([]);
-
-  /**
-   * @member folders$
-   * 
-   * Observable for the folders
-   */
   folders$ = this._folders.asObservable();
-
-  /**
-   * @member isFoldersSortedAscending
-   * 
-   * Boolean to determine if the folders are sorted ascending
-   */
   private isFoldersSortedAscending: boolean = true;
-
-  /**
-   * @member selectedFolder
-   * 
-   * The selected folder
-   */
   selectedFolder: TreeNode | undefined = undefined;
 
-
-  /**
-   * @method getFolders
-   * 
-   * Gets all the folders
-   */
   public async getFolders() : Promise<void> {
     if(!this.dbHelper.db) {
       await this.dbHelper.initializeDB();
@@ -61,7 +25,7 @@ export class FolderHelperService {
 
     try{
       const rawFolders = await this.dbHelper.executeQuery<RawFolder>(
-        "SELECT FID, FNAME, FPARENT_ID, LKEY, LNAME, FLID, FGUID, FCREATED_AT, FMODIFIED_AT FROM FOLDERS, LANGUAGES WHERE FLID = LID ORDER BY FNAME ASC"
+        "SELECT FID, FNAME, FPARENT_ID, LKEY, LNAME, FLID, FGUID, FPIN ,FCREATED_AT, FMODIFIED_AT FROM FOLDERS, LANGUAGES WHERE FLID = LID ORDER BY FNAME ASC"
       );
       console.log("loaded folders: ",rawFolders);
 
@@ -74,7 +38,8 @@ export class FolderHelperService {
         UpdatedAt: f.FMODIFIED_AT,
         DefaultLanguageKey: f.LKEY,
         DefaultLanguageName: f.LNAME,
-        LanguageId: f.FLID
+        LanguageId: f.FLID,
+        Pinned: f.FPIN
       } satisfies Folder));
 
       const folderTree = this.buildFolderTree(folders);
@@ -91,13 +56,6 @@ export class FolderHelperService {
     }
   }
    
-  /**
-   * 
-   * @param newFolder 
-   * @returns 
-   * 
-   * Adds a new folder
-   */
   public async addFolder(newFolder: AddFolder): Promise<number> {
     return new Promise((resolve, reject) => {
       const guid = uuid();
@@ -121,7 +79,8 @@ export class FolderHelperService {
               DefaultLanguageName: newFolder.LanguageName,
               LanguageId: newFolder.LanguageId,
               CreatedAt: timestamp,
-              UpdatedAt: timestamp
+              UpdatedAt: timestamp,
+              Pinned: 0
             },
             children: [],
             expandedIcon: PrimeIcons.FOLDER_OPEN,
@@ -140,13 +99,6 @@ export class FolderHelperService {
     });
   }
 
-  /**
-   * 
-   * @param folderId 
-   * @returns 
-   * 
-   * Deletes a folder
-   */
   public async deleteFolder(folderId: number): Promise<void> {
     return new Promise((resolve, reject) => {
       const sql = `DELETE FROM FOLDERS WHERE FID = ?`;
@@ -171,13 +123,6 @@ export class FolderHelperService {
     });
   }
 
-  /**
-   * 
-   * @param folderId
-   * @returns 
-   * 
-   * Updates a folder
-   */
   public async changePropertiesFolder(folderId: number, newName?: string, languageId?: number): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!newName && languageId === undefined) {
@@ -263,87 +208,56 @@ export class FolderHelperService {
   });
 }
 
-private moveFoldersInTree(
-  tree: TreeNode[],
-  foldersToMove: { folderId: number; parentId: number | undefined }[]
-): TreeNode[] {
-  const allNodes = this.flattenTree(tree);
-  const nodeMap = new Map<number, TreeNode>();
+public async Un_Pin_Folder(folderId: number, isPinned: boolean): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const sql = `UPDATE FOLDERS SET FPIN = ? WHERE FID = ?`;
+    const pinValue = !isPinned ? -1 : 0;
 
-  allNodes.forEach(node => {
-    nodeMap.set(node.data.Id, { ...node, children: [] });
-  });
+    this.dbHelper.db
+      .execute(sql, [pinValue, folderId])
+      .then(() => {
+        const updatedTree = this.UnPinFolderInTree(this._folders.getValue(), folderId, isPinned);
+        this._folders.next(updatedTree);
 
-  foldersToMove.forEach(({ folderId, parentId }) => {
-    const node = nodeMap.get(folderId);
-    if (node) {
-      node.data = { ...node.data, ParentId: parentId };
-    }
-  });
+        this.isFoldersSortedAscending
+          ? this.sortFoldersASC(this.isFoldersSortedAscending)
+          : this.sortFoldersDESC(this.isFoldersSortedAscending);
 
-  const newTree: TreeNode[] = [];
-  nodeMap.forEach(node => {
-    const parentId = node.data.ParentId;
-    if (parentId === undefined || !nodeMap.has(parentId)) {
-      newTree.push(node); // Root node
-    } else {
-      const parent = nodeMap.get(parentId)!;
-      parent.children = parent.children || [];
-      parent.children.push(node);
-    }
-  });
-
-  return newTree;
-}
-
-
-private flattenTree(nodes: TreeNode[]): TreeNode[] {
-  const result: TreeNode[] = [];
-  const stack = [...nodes];
-
-  while (stack.length > 0) {
-    const node = stack.pop()!;
-    result.push(node);
-    if (node.children) {
-      stack.push(...node.children);
-    }
-  }
-
-  return result;
-}
-
-private updateParentsNodeInTree(
-  folders: TreeNode[],
-  foldersToMove: { folderId: number; parentId: number | undefined }[]
-): TreeNode[] {
-  return folders.map((node) => {
-    const folderToMove = foldersToMove.find((f) => f.folderId === node.data.Id);
-
-    const updatedData = {
-      ...node.data,
-      ...(folderToMove ? { ParentId: folderToMove.parentId } : {})
-    };
-
-    const updatedChildren = node.children
-      ? this.updateParentsNodeInTree(node.children, foldersToMove)
-      : [];
-
-    return {
-      ...node,
-      data: updatedData,
-      children: updatedChildren
-    };
+        resolve();
+      })
+      .catch((error: any) => {
+        reject(error);
+      });
   });
 }
 
 
-  /**
-   * 
-   * @param folders 
-   * @returns 
-   * 
-   * Builds the folder tree
-   */
+private UnPinFolderInTree(tree: TreeNode[], folderId: number, isPinned: boolean): TreeNode[] {
+  const pinValue = !isPinned ? -1 : 0;
+
+  const updateNode = (nodes: TreeNode[]): TreeNode[] => {
+    return nodes.map(node => {
+      let updatedNode = { ...node };
+
+      if (node.data.Id === folderId) {
+        updatedNode = {
+          ...updatedNode,
+          data: {
+            ...updatedNode.data,
+            Pinned: pinValue
+          }
+        };
+      }
+
+      if (node.children && node.children.length > 0) {
+        updatedNode.children = updateNode(node.children);
+      }
+
+      return updatedNode;
+    });
+  };
+  return updateNode(tree);
+}
 
   private buildFolderTree(folders: Folder[]): TreeNode[] {
   const map = new Map<number, TreeNode>();
@@ -373,12 +287,6 @@ private updateParentsNodeInTree(
   return rootNodes;
 }
 
-  /**
-   * 
-   * @param nodes 
-   * 
-   * Applies the folder icons
-   */
   private applyIcons (nodes: TreeNode[]) {
     nodes.forEach((node) => {
       node.expandedIcon = PrimeIcons.FOLDER_OPEN;
@@ -390,12 +298,6 @@ private updateParentsNodeInTree(
     });
   }
 
-  /**
-   * 
-   * @param isFoldersSortedAscending  (true)
-   * 
-   * Sorts the folders ascended
-   */
   public sortFoldersASC(isFoldersSortedAscending: boolean): void {
     this.isFoldersSortedAscending = isFoldersSortedAscending;
     const sortedTree = [...this._folders.value];
@@ -403,12 +305,6 @@ private updateParentsNodeInTree(
     this._folders.next(sortedTree);
   }
 
-  /**
-   * 
-   * @param isFoldersSortedAscending (false)
-   * 
-   * Sorts the folders descended
-   */
   public sortFoldersDESC(isFoldersSortedAscending: boolean): void {
     this.isFoldersSortedAscending = isFoldersSortedAscending;
     const sortedTree = [...this._folders.value];
@@ -416,13 +312,6 @@ private updateParentsNodeInTree(
     this._folders.next(sortedTree);
   }
 
-  /**
-   * 
-   * @param nodes 
-   * @param ascending 
-   * 
-   * Sorts the tree nodes
-   */
   private sortTreeNodes(nodes: TreeNode[], ascending: boolean) {
     nodes.sort((a, b) => {
       const nameA = a?.label?.toLowerCase() ?? "";
@@ -439,13 +328,6 @@ private updateParentsNodeInTree(
     });
   }
 
-  /**
-   * 
-   * @param newNode 
-   * @param parentId 
-   * 
-   * Adds a new node to the tree
-   */
   private addNodeToTree(newNode: TreeNode, parentId: number | null) {
     const currentTree = this._folders.value;
     console.log("currentTree: ", currentTree);
@@ -461,14 +343,6 @@ private updateParentsNodeInTree(
     this._folders.next(currentTree);
   }
 
-  /**
-   * 
-   * @param nodes 
-   * @param id 
-   * @returns 
-   * 
-   * Finds a node by its id
-   */
   private findNodeById(nodes: TreeNode[], id: number): TreeNode | null {
     for (const node of nodes) {
       if (node.data.Id === id) {
@@ -484,14 +358,6 @@ private updateParentsNodeInTree(
     return null;
   }
 
-  /**
-   * 
-   * @param nodes 
-   * @param folderId 
-   * @returns 
-   * 
-   * Removes a node from the tree
-   */
   private removeNodeFromTree(nodes: TreeNode[], folderId: number): TreeNode[] {
     return nodes
       .filter((node) => node.data.Id !== folderId)
@@ -503,15 +369,6 @@ private updateParentsNodeInTree(
       }));
   }
 
-  /**
-   * 
-   * @param nodes 
-   * @param folderId 
-   * @param newName 
-   * @returns 
-   * 
-   * Updates a node in the tree
-   */
   private updateNodeInTree(
     nodes: TreeNode[],
     folderId: number,
@@ -555,5 +412,77 @@ private updateParentsNodeInTree(
           : [],
       };
     });
-  } 
+  }
+  
+    private moveFoldersInTree(
+    tree: TreeNode[],
+    foldersToMove: { folderId: number; parentId: number | undefined }[]
+  ): TreeNode[] {
+    const allNodes = this.flattenTree(tree);
+    const nodeMap = new Map<number, TreeNode>();
+
+    allNodes.forEach(node => {
+      nodeMap.set(node.data.Id, { ...node, children: [] });
+    });
+
+    foldersToMove.forEach(({ folderId, parentId }) => {
+      const node = nodeMap.get(folderId);
+      if (node) {
+        node.data = { ...node.data, ParentId: parentId };
+      }
+    });
+
+    const newTree: TreeNode[] = [];
+    nodeMap.forEach(node => {
+      const parentId = node.data.ParentId;
+      if (parentId === undefined || !nodeMap.has(parentId)) {
+        newTree.push(node); // Root node
+      } else {
+        const parent = nodeMap.get(parentId)!;
+        parent.children = parent.children || [];
+        parent.children.push(node);
+      }
+    });
+
+    return newTree;
+  }
+
+  private flattenTree(nodes: TreeNode[]): TreeNode[] {
+    const result: TreeNode[] = [];
+    const stack = [...nodes];
+
+    while (stack.length > 0) {
+      const node = stack.pop()!;
+      result.push(node);
+      if (node.children) {
+        stack.push(...node.children);
+      }
+    }
+
+    return result;
+  }
+
+  private updateParentsNodeInTree(
+    folders: TreeNode[],
+    foldersToMove: { folderId: number; parentId: number | undefined }[]
+  ): TreeNode[] {
+    return folders.map((node) => {
+      const folderToMove = foldersToMove.find((f) => f.folderId === node.data.Id);
+
+      const updatedData = {
+        ...node.data,
+        ...(folderToMove ? { ParentId: folderToMove.parentId } : {})
+      };
+
+      const updatedChildren = node.children
+        ? this.updateParentsNodeInTree(node.children, foldersToMove)
+        : [];
+
+      return {
+        ...node,
+        data: updatedData,
+        children: updatedChildren
+      };
+    });
+  }
 }

@@ -39,6 +39,7 @@ pub fn run() {
 									SFID INTEGER,
                                     SLNAME TEXT NOT NULL,
                                     SLID INTEGER,
+                                    SORDER INTEGER DEFAULT 1,
                                     SGUID TEXT NOT NULL,
 									FOREIGN KEY (SFID) REFERENCES FOLDERS(FID) ON DELETE CASCADE
                                     FOREIGN KEY (SLID) REFERENCES LANGUAGES(LID) ON DELETE CASCADE

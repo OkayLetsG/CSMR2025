@@ -13,6 +13,7 @@ export interface RawFolder {
     LNAME: string;
     FLID: number;
     FGUID: string;
+    FPIN: number;
     FCREATED_AT: Date;
     FMODIFIED_AT: Date;
 }
