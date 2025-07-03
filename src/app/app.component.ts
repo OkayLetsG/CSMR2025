@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MainsplitterComponent } from './mainsplitter/mainsplitter.component';
+import { MainpanelComponent } from './mainpanel/mainpanel.component';
 import { ResponsiveModel } from '../models/theme/responsive.model';
 import { ResponsiveService } from '../services/theme/responsive.service';
 
@@ -8,7 +8,7 @@ import { ResponsiveService } from '../services/theme/responsive.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, MainsplitterComponent],
+  imports: [CommonModule, MainpanelComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })

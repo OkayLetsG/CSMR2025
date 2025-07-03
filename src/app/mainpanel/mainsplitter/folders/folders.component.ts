@@ -21,12 +21,12 @@ import {
   MenuItem,
   ConfirmationService,
 } from "primeng/api";
-import { FolderHelperService } from "../../../services/main/folder-helper.service";
-import { LanguageService } from "../../../services/main/language.service";
-import { type Language } from "../../../models/main/base/language.model";
-import { type AddFolder } from "../../../models/main/base/addFolder.model";
-import { ResponsiveService } from "../../../services/theme/responsive.service";
-import { type ResponsiveModel } from "../../../models/theme/responsive.model";
+import { FolderHelperService } from "../../../../services/main/folder-helper.service";
+import { LanguageService } from "../../../../services/main/language.service";
+import { type Language } from "../../../../models/main/base/language.model";
+import { type AddFolder } from "../../../../models/main/base/addFolder.model";
+import { ResponsiveService } from "../../../../services/theme/responsive.service";
+import { type ResponsiveModel } from "../../../../models/theme/responsive.model";
 
 @Component({
   selector: "app-folders",

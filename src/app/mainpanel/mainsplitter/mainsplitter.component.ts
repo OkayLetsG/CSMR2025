@@ -4,7 +4,6 @@ import { FormsModule } from "@angular/forms";
 import { FoldersComponent } from "./folders/folders.component";
 import { SnippetsComponent } from "./snippets/snippets.component";
 import { EditorComponent } from "./editor/editor.component";
-import { ResponsiveModel } from "../../models/theme/responsive.model";
 
 @Component({
   selector: "app-mainsplitter",

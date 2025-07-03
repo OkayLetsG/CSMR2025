@@ -1,0 +1,92 @@
+<p-toolbar
+  [style]="{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '1rem',
+    flexWrap: 'wrap',
+    height: '50px',
+    padding: '0.25rem 1rem',
+    backgroundColor: '#f8f9fa',
+    borderBottom: '1px solid #ddd'
+  }"
+>
+  <div
+    [style]="{
+      flex: '1',
+      minWidth: '150px',
+      display: 'flex',
+      alignItems: 'center'
+    }"
+  >
+    <p-menubar
+      [model]="items"
+      [style]="{
+        border: 'none',
+        boxShadow: 'none',
+        background: 'transparent',
+        fontSize: '14px',
+        height: '40px'
+      }"
+    ></p-menubar>
+  </div>
+  <div
+    [style]="{
+      flex: '2',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center'
+    }"
+  >
+    <p-iconField iconPosition="right" [style]="{ maxWidth: '400px', width: '100%' }">
+      <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+      <input
+        type="text"
+        pInputText
+        placeholder="Search"
+        [style]="{
+          width: '100%',
+          padding: '0.4rem 0.75rem',
+          fontSize: '14px',
+          borderRadius: '4px',
+          border: '1px solid #ccc',
+          height: '32px'
+        }"
+      />
+    </p-iconField>
+  </div>
+  <div
+    [style]="{
+      flex: '1',
+      minWidth: '150px',
+      display: 'flex',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+      gap: '0.5rem'
+    }"
+  >
+    <p-button [label]="'Save'" [text]="true" styleClass="p-button-sm"></p-button>
+    <p-button [icon]="'pi pi-cog'" styleClass="p-button-text p-button-sm"></p-button>
+  </div>
+</p-toolbar>
+
+<p-tabView #tabView>
+    <p-tabPanel [header]="'Workspace'">
+        <app-mainsplitter></app-mainsplitter>
+    </p-tabPanel>
+    <p-tabPanel [header]="'Languages'">
+        TODO: Languages
+    </p-tabPanel>
+    <p-tabPanel [header]="'VS Code Snippets'">
+        TODO: VS Code Snippets
+    </p-tabPanel>
+    <p-tabPanel [header]="'Playground'">
+        TODO: Playground
+    </p-tabPanel>
+    <p-tabPanel [header]="'DB Query'">
+        TODO: DB Query
+    </p-tabPanel>
+    <p-tabPanel [header]="'Statistics'">
+        TODO: Statistics
+    </p-tabPanel>
+</p-tabView>
