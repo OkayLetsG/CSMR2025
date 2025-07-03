@@ -1,4 +1,4 @@
-<p-iconField iconPosition="right">
+<!-- <p-iconField iconPosition="right">
   <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
   <input
     type="text"
@@ -26,7 +26,7 @@
     border: '0px'
   }"
 >
-</p-splitButton>
+</p-splitButton> -->
 <p-tree
   [contextMenu]="cm"
   [value]="folders"
@@ -37,7 +37,7 @@
   (onNodeUnselect)="nodeUnselect()"
   [virtualScroll]="true"
   [virtualScrollItemSize]="48"
-  [scrollHeight]="(windowValues.height - 105) + 'px'"
+  [scrollHeight]="(windowValues.height-117) + 'px'"
   [loading]="isLoading"
   [loadingIcon]="'pi pi-spin pi-spinner'"
   [loadingMode]="'icon'"
