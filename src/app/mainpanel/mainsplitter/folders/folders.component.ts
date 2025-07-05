@@ -15,6 +15,7 @@ import { FloatLabelModule } from "primeng/floatlabel";
 import { DropdownModule } from "primeng/dropdown";
 import { ContextMenuModule, ContextMenu } from "primeng/contextmenu";
 import { CheckboxModule } from "primeng/checkbox";
+import { TabViewChangeEvent, TabViewModule } from 'primeng/tabview';
 import {
   TreeNode,
   MessageService,
@@ -48,6 +49,7 @@ import { type ResponsiveModel } from "../../../../models/theme/responsive.model"
     DropdownModule,
     ContextMenuModule,
     CheckboxModule,
+    TabViewModule,
   ],
   templateUrl: "./folders.component.html",
   styleUrl: "./folders.component.css",
@@ -62,6 +64,7 @@ export class FoldersComponent implements OnInit {
   @ViewChild("cm") cm!: ContextMenu;
   isLoading: boolean = false;
   folders: TreeNode[] = [];
+  pinnedFolders: TreeNode[] = [];
   selectedFolder: any;
   selectedNodeFolder: TreeNode | undefined;
   selectedNodeLanguage: any;
@@ -87,6 +90,7 @@ export class FoldersComponent implements OnInit {
   selectedFoldersToMove: TreeNode[] | undefined = [];
   multipleTreeSelect: TreeNode[] = [];
   destinationFolder: TreeNode | undefined = undefined;
+  tabIndex: number = 0;
 
   ngOnInit(): void {
     this.setupSplitButton();
@@ -100,6 +104,8 @@ export class FoldersComponent implements OnInit {
       this.originalFolders = nodes;
       this.treeSelect = this.cloneTreeNodes(nodes);
       this.multipleTreeSelect = this.cloneTreeNodes(nodes);
+      this.pinnedFolders = this.getPinnedFolders(nodes);
+      console.log("pinned folders", this.pinnedFolders);
       this.isLoading = false;
     });
 
@@ -638,5 +644,33 @@ export class FoldersComponent implements OnInit {
         });
       });
     };
+  }
+
+ private getPinnedFolders(nodes: TreeNode[]): TreeNode[] {
+    const pinned: TreeNode[] = [];
+
+    const collectPinned = (nodeList: TreeNode[]) => {
+      for (const node of nodeList) {
+        if (node.data?.Pinned === -1) {
+          pinned.push({
+            ...node,
+            children: []
+          });
+        }
+        if (node.children && node.children.length > 0) {
+          collectPinned(node.children);
+        }
+      }
+    };
+    collectPinned(nodes);
+    return pinned;
+  }
+
+    public tabChange(event: TabViewChangeEvent) {
+      this.tabIndex = event.index;
+
+      if (this.tabIndex === 1) {
+        this.pinnedFolders = [...this.pinnedFolders];
+    }
   }
 }

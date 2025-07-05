@@ -1,0 +1,21 @@
+/* :host ::ng-deep .p-tabview .p-tabview-panels {
+  padding: 0 !important;
+} */
+
+:host ::ng-deep {
+  .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+    font-size: 13px;
+    font-weight: normal;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .p-tabview .p-tabview-panels {
+    padding: 0 !important;
+  }
+}
+
+:host ::ng-deep .p-tabview .p-tabview-title {
+  font-size: 13px !important;
+  font-weight: normal !important;
+}
+

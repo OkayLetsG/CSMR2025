@@ -1,67 +1,74 @@
-<!-- <p-iconField iconPosition="right">
-  <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
-  <input
-    type="text"
-    pInputText
-    placeholder="Search"
-    [(ngModel)]="filterValue"
-    (input)="applyFilter()"
-    [style]="{
-      width: '100%',
-      fontSize: '15px',
-      borderRadius: '0px',
-      border: '0px',
-      background: 'transparent'
-    }"
-  />
-</p-iconField>
-<p-splitButton
-  label="New Folder"
-  (onClick)="globalAddFolder(true)"
-  [model]="sbItems"
-  text
-  size="small"
-  [style]="{
-    borderRadius: '0px',
-    border: '0px'
-  }"
->
-</p-splitButton> -->
-<p-tree
-  [contextMenu]="cm"
-  [value]="folders"
-  filterMode="lenient"
-  selectionMode="single"
-  [(selection)]="selectedFolder"
-  (onNodeSelect)="nodeSelect()"
-  (onNodeUnselect)="nodeUnselect()"
-  [virtualScroll]="true"
-  [virtualScrollItemSize]="48"
-  [scrollHeight]="(windowValues.height-117) + 'px'"
-  [loading]="isLoading"
-  [loadingIcon]="'pi pi-spin pi-spinner'"
-  [loadingMode]="'icon'"
-  [emptyMessage]="'NO FOLDERS'"
-  (onNodeContextMenuSelect)="nodeContextMenuSelect($event)"
-  [layout]="'vertical'"
-  [style]="{
-    height: '{{this.windowValues.height}}px',
-    overflowY: 'auto',
-    overflowX: 'auto',
-    flex: '1 1 auto',
-    width: '100%',
-    border: '0px',
-    borderRadius: '0px',
-    overflow: 'auto', 
-    fontSize: '14px',
-    fontWeight: 'bold'
-  }"
->
-</p-tree>
+<p-tabView [(activeIndex)]="tabIndex" (onChange)="tabChange($event)">
+  <p-tabPanel [header]="'EXPLORER'">
+    <p-tree
+      [contextMenu]="cm"
+      [value]="folders"
+      filterMode="lenient"
+      selectionMode="single"
+      [(selection)]="selectedFolder"
+      (onNodeSelect)="nodeSelect()"
+      (onNodeUnselect)="nodeUnselect()"
+      [virtualScroll]="true"
+      [virtualScrollItemSize]="48"
+      [scrollHeight]="windowValues.height - 168 + 'px'"
+      [loading]="isLoading"
+      [loadingIcon]="'pi pi-spin pi-spinner'"
+      [loadingMode]="'icon'"
+      [emptyMessage]="'NO FOLDERS'"
+      (onNodeContextMenuSelect)="nodeContextMenuSelect($event)"
+      [layout]="'vertical'"
+      [style]="{
+        height: '{{this.windowValues.height}}px',
+        overflowY: 'auto',
+        overflowX: 'auto',
+        flex: '1 1 auto',
+        width: '100%',
+        border: '0px',
+        borderRadius: '0px',
+        overflow: 'auto',
+        fontSize: '14px',
+        fontWeight: 'bold'
+      }"
+    >
+    </p-tree>
+  </p-tabPanel>
 
+  <p-tabPanel [header]="'PINNED'"> 
+     <p-tree
+      [contextMenu]="cm"
+      [value]="pinnedFolders"
+      filterMode="lenient"
+      selectionMode="single"
+      [(selection)]="selectedFolder"
+      (onNodeSelect)="nodeSelect()"
+      (onNodeUnselect)="nodeUnselect()"
+      [virtualScroll]="true"
+      [virtualScrollItemSize]="48"
+      [scrollHeight]="windowValues.height - 168 + 'px'"
+      [loading]="isLoading"
+      [loadingIcon]="'pi pi-spin pi-spinner'"
+      [loadingMode]="'icon'"
+      [emptyMessage]="'NO PINNED FOLDERS'"
+      (onNodeContextMenuSelect)="nodeContextMenuSelect($event)"
+      [layout]="'vertical'"
+      [style]="{
+        height: '{{this.windowValues.height}}px',
+        overflowY: 'auto',
+        overflowX: 'auto',
+        flex: '1 1 auto',
+        width: '100%',
+        border: '0px',
+        borderRadius: '0px',
+        overflow: 'auto',
+        fontSize: '14px',
+        fontWeight: 'bold'
+      }"
+    >
+    </p-tree>
+  </p-tabPanel>
+</p-tabView>
 
-<p-contextMenu #cm [model]="cmItems">
-</p-contextMenu>
+<p-contextMenu #cm [model]="cmItems"> </p-contextMenu>
 
 <p-dialog
   [header]="DialogTitle"
@@ -81,23 +88,36 @@
     {{ DialogDescription }}
   </p>
   }
-  <div style="display: flex; align-items: center; width: 100%; gap: 1rem;">
-    <p-floatLabel style="flex: 1;">
+  <div style="display: flex; align-items: center; width: 100%; gap: 1rem">
+    <p-floatLabel style="flex: 1">
       <input
         type="text"
         pInputText
         [(ngModel)]="userFolderNameValue"
-        style="width: 100%;" 
-        [class.ng-invalid]="userFolderNameValue === '' || userFolderNameValue === undefined"
-        [class.ng-dirty]="userFolderNameValue === '' || userFolderNameValue === undefined"/>
+        style="width: 100%"
+        [class.ng-invalid]="
+          userFolderNameValue === '' || userFolderNameValue === undefined
+        "
+        [class.ng-dirty]="
+          userFolderNameValue === '' || userFolderNameValue === undefined
+        "
+      />
       <label>Folder Name</label>
     </p-floatLabel>
-    <div style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;">
+    <div
+      style="
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+      "
+    >
       <p-checkbox
         [(ngModel)]="isAddRootFolder"
         inputId="rootFolderCheckbox"
         [binary]="true"
-        (ngModelChange)="onChangeCheckboxRootFolder()">
+        (ngModelChange)="onChangeCheckboxRootFolder()"
+      >
       </p-checkbox>
       <label>Root Folder</label>
     </div>
@@ -111,46 +131,52 @@
       [(ngModel)]="selectedNodeFolder"
       [options]="treeSelect"
       [containerStyle]="{ width: '100%' }"
-      [class.ng-invalid]="selectedNodeFolder === null && !isAddRootFolder || selectedNodeFolder === undefined && !isAddRootFolder"
-      [class.ng-dirty]="selectedNodeFolder === null && !isAddRootFolder || selectedNodeFolder === undefined && !isAddRootFolder"
-      [virtualScroll]="true" 
-      [virtualScrollItemSize]="48" 
-      [virtualScrollOptions]="{scrollHeight: '250px'}"
-      [filter]="true" 
+      [class.ng-invalid]="
+        (selectedNodeFolder === null && !isAddRootFolder) ||
+        (selectedNodeFolder === undefined && !isAddRootFolder)
+      "
+      [class.ng-dirty]="
+        (selectedNodeFolder === null && !isAddRootFolder) ||
+        (selectedNodeFolder === undefined && !isAddRootFolder)
+      "
+      [virtualScroll]="true"
+      [virtualScrollItemSize]="48"
+      [virtualScrollOptions]="{ scrollHeight: '250px' }"
+      [filter]="true"
       [filterInputAutoFocus]="true"
       variant="outlined"
       appendTo="body"
       [disabled]="isAddRootFolder"
-      >
+    >
     </p-treeSelect>
-    <label>
-      Parent Folder
-  </label>
-</p-floatLabel>
+    <label> Parent Folder </label>
+  </p-floatLabel>
 
-<p-divider></p-divider>
+  <p-divider></p-divider>
 
-<p-floatLabel>
-  <p-treeSelect
-    [placeholder]="'Select language'"
-    [(ngModel)]="selectedNodeLanguage"
-    [options]="languagesAsTreeNodes"
-    [containerStyle]="{ width: '100%' }"
-    [class.ng-invalid]="selectedNodeLanguage === null || selectedNodeLanguage === undefined"
-    [class.ng-dirty]="selectedNodeLanguage === null || selectedNodeLanguage === undefined"
-    [virtualScroll]="true" 
-    [virtualScrollItemSize]="48" 
-    [virtualScrollOptions]="{scrollHeight: '250px'}"
-    [filter]="true" 
-    [filterInputAutoFocus]="true"
-    variant="outlined"
-    appendTo="body"
-  >
-  </p-treeSelect>
-  <label>
-    Select default language
-  </label>
-</p-floatLabel>
+  <p-floatLabel>
+    <p-treeSelect
+      [placeholder]="'Select language'"
+      [(ngModel)]="selectedNodeLanguage"
+      [options]="languagesAsTreeNodes"
+      [containerStyle]="{ width: '100%' }"
+      [class.ng-invalid]="
+        selectedNodeLanguage === null || selectedNodeLanguage === undefined
+      "
+      [class.ng-dirty]="
+        selectedNodeLanguage === null || selectedNodeLanguage === undefined
+      "
+      [virtualScroll]="true"
+      [virtualScrollItemSize]="48"
+      [virtualScrollOptions]="{ scrollHeight: '250px' }"
+      [filter]="true"
+      [filterInputAutoFocus]="true"
+      variant="outlined"
+      appendTo="body"
+    >
+    </p-treeSelect>
+    <label> Select default language </label>
+  </p-floatLabel>
 
   <p-footer>
     <p-button
@@ -185,18 +211,23 @@
     {{ DialogDescription }}
   </p>
   }
-   <p-floatLabel>
-      <input
-        type="text"
-        pInputText
-        [(ngModel)]="userFolderNameValue"
-        style="width: 100%;" 
-        [class.ng-invalid]="userFolderNameValue === '' || userFolderNameValue === undefined"
-        [class.ng-dirty]="userFolderNameValue === '' || userFolderNameValue === undefined"/>
-      <label>Folder Name</label>
-    </p-floatLabel>
+  <p-floatLabel>
+    <input
+      type="text"
+      pInputText
+      [(ngModel)]="userFolderNameValue"
+      style="width: 100%"
+      [class.ng-invalid]="
+        userFolderNameValue === '' || userFolderNameValue === undefined
+      "
+      [class.ng-dirty]="
+        userFolderNameValue === '' || userFolderNameValue === undefined
+      "
+    />
+    <label>Folder Name</label>
+  </p-floatLabel>
 
-    <p-divider></p-divider>
+  <p-divider></p-divider>
 
   <p-floatLabel>
     <p-treeSelect
@@ -204,21 +235,23 @@
       [(ngModel)]="selectedNodeLanguage"
       [options]="languagesAsTreeNodes"
       [containerStyle]="{ width: '100%' }"
-      [class.ng-invalid]="selectedNodeLanguage === null || selectedNodeLanguage === undefined"
-      [class.ng-dirty]="selectedNodeLanguage === null || selectedNodeLanguage === undefined"
-      [virtualScroll]="true" 
-      [virtualScrollItemSize]="48" 
-      [virtualScrollOptions]="{scrollHeight: '250px'}"
-      [filter]="true" 
+      [class.ng-invalid]="
+        selectedNodeLanguage === null || selectedNodeLanguage === undefined
+      "
+      [class.ng-dirty]="
+        selectedNodeLanguage === null || selectedNodeLanguage === undefined
+      "
+      [virtualScroll]="true"
+      [virtualScrollItemSize]="48"
+      [virtualScrollOptions]="{ scrollHeight: '250px' }"
+      [filter]="true"
       [filterInputAutoFocus]="true"
       variant="outlined"
       appendTo="body"
     >
     </p-treeSelect>
-    <label>
-      Select default language
-    </label>
-</p-floatLabel>
+    <label> Select default language </label>
+  </p-floatLabel>
 
   <p-footer>
     <p-button
@@ -260,12 +293,20 @@
       [(ngModel)]="selectedFoldersToMove"
       [options]="multipleTreeSelect"
       [containerStyle]="{ width: '100%' }"
-      [class.ng-invalid]="selectedFoldersToMove === null || selectedFoldersToMove === undefined || selectedFoldersToMove.length === 0"
-      [class.ng-dirty]="selectedFoldersToMove === null || selectedFoldersToMove === undefined || selectedFoldersToMove.length === 0"
-      [virtualScroll]="true" 
-      [virtualScrollItemSize]="48" 
-      [virtualScrollOptions]="{scrollHeight: '250px'}"
-      [filter]="true" 
+      [class.ng-invalid]="
+        selectedFoldersToMove === null ||
+        selectedFoldersToMove === undefined ||
+        selectedFoldersToMove.length === 0
+      "
+      [class.ng-dirty]="
+        selectedFoldersToMove === null ||
+        selectedFoldersToMove === undefined ||
+        selectedFoldersToMove.length === 0
+      "
+      [virtualScroll]="true"
+      [virtualScrollItemSize]="48"
+      [virtualScrollOptions]="{ scrollHeight: '250px' }"
+      [filter]="true"
       [filterInputAutoFocus]="true"
       variant="outlined"
       appendTo="body"
@@ -273,48 +314,58 @@
       display="chip"
     >
     </p-treeSelect>
-    <label>
-      Where
-    </label>
-  </p-floatLabel> 
+    <label> Where </label>
+  </p-floatLabel>
 
   <p-divider></p-divider>
 
-    <div style="display: flex; align-items: center; width: 100%; gap: 1rem;">
-      <div style="flex: 1;">
-        <p-floatLabel>
-          <p-treeSelect
-            [placeholder]="'Select Folders'"
-            [(ngModel)]="destinationFolder"
-            [options]="multipleTreeSelect"
-            [containerStyle]="{ width: '100%' }"
-            [class.ng-invalid]="destinationFolder === null || destinationFolder === undefined"
-            [class.ng-dirty]="destinationFolder === null || destinationFolder === undefined"
-            [virtualScroll]="true" 
-            [virtualScrollItemSize]="48" 
-            [virtualScrollOptions]="{scrollHeight: '250px'}"
-            [filter]="true" 
-            [filterInputAutoFocus]="true"
-            variant="outlined"
-            appendTo="body"
-            [disabled]="isMoveToRoot"
-          >
-          </p-treeSelect>
-          <label>Into</label>
-        </p-floatLabel>
+  <div style="display: flex; align-items: center; width: 100%; gap: 1rem">
+    <div style="flex: 1">
+      <p-floatLabel>
+        <p-treeSelect
+          [placeholder]="'Select Folders'"
+          [(ngModel)]="destinationFolder"
+          [options]="multipleTreeSelect"
+          [containerStyle]="{ width: '100%' }"
+          [class.ng-invalid]="
+            destinationFolder === null || destinationFolder === undefined
+          "
+          [class.ng-dirty]="
+            destinationFolder === null || destinationFolder === undefined
+          "
+          [virtualScroll]="true"
+          [virtualScrollItemSize]="48"
+          [virtualScrollOptions]="{ scrollHeight: '250px' }"
+          [filter]="true"
+          [filterInputAutoFocus]="true"
+          variant="outlined"
+          appendTo="body"
+          [disabled]="isMoveToRoot"
+        >
+        </p-treeSelect>
+        <label>Into</label>
+      </p-floatLabel>
     </div>
-    <div style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;">
+    <div
+      style="
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+      "
+    >
       <p-checkbox
         [(ngModel)]="isMoveToRoot"
         inputId="rootMoveFolderCheckbox"
         [binary]="true"
-        (ngModelChange)="onChangeMoveAsCheckboxRootFolder()">
+        (ngModelChange)="onChangeMoveAsCheckboxRootFolder()"
+      >
       </p-checkbox>
       <label>Root Folder</label>
     </div>
   </div>
 
-   <p-footer>
+  <p-footer>
     <p-button
       label="Cancel"
       class="p-button-text"
@@ -332,3 +383,33 @@
 <p-toast position="bottom-right" key="br"></p-toast>
 
 <p-confirmDialog />
+
+<!-- <p-iconField iconPosition="right">
+  <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+  <input
+    type="text"
+    pInputText
+    placeholder="Search"
+    [(ngModel)]="filterValue"
+    (input)="applyFilter()"
+    [style]="{
+      width: '100%',
+      fontSize: '15px',
+      borderRadius: '0px',
+      border: '0px',
+      background: 'transparent'
+    }"
+  />
+</p-iconField>
+<p-splitButton
+  label="New Folder"
+  (onClick)="globalAddFolder(true)"
+  [model]="sbItems"
+  text
+  size="small"
+  [style]="{
+    borderRadius: '0px',
+    border: '0px'
+  }"
+>
+</p-splitButton> -->
