@@ -509,51 +509,66 @@ export class FoldersComponent implements OnInit, AfterViewInit {
     }
   }
 
-  public onMoveFolders() {
-    const errorMessages: string[] = [];
-    if (
-      this.selectedFoldersToMove === null ||
-      this.selectedFoldersToMove === undefined
-    ) {
-      errorMessages.push("Please select folders to move");
-    }
-
-    if (
-      (this.destinationFolder === null ||
-        this.destinationFolder === undefined) &&
-      !this.isMoveToRoot
-    ) {
-      errorMessages.push("Please select a destination folder");
-    }
-
-    if (errorMessages.length > 0) {
-      errorMessages.forEach((err) =>
-        this.notify.add({
-          severity: "error",
-          summary: "Error",
-          detail: err,
-          key: "br",
-          sticky: true,
-        })
-      );
-      return;
-    } else {
-      this.isLoading = true;
+    public onMoveFolders() {
+      const errorMessages: string[] = [];
+    
+      if (!this.selectedFoldersToMove || this.selectedFoldersToMove.length === 0) {
+        errorMessages.push("Please select folders to move");
+      }
+    
+      if (!this.isMoveToRoot && !this.destinationFolder) {
+        errorMessages.push("Please select a destination folder");
+      }
+    
       const newParentId = this.isMoveToRoot
         ? undefined
         : this.destinationFolder!.data.Id;
-      console.log("newParentId", newParentId);
+    
+      if (this.selectedFoldersToMove) {
+        if (
+          newParentId &&
+          this.selectedFoldersToMove.some((f) => f.data.Id === newParentId)
+        ) {
+          errorMessages.push("A folder cannot be moved into itself.");
+        }
+    
+        for (const folder of this.selectedFoldersToMove) {
+          if (
+            newParentId &&
+            this.isDescendantFolder(folder, newParentId)
+          ) {
+            errorMessages.push(
+              `Cannot move folder '${folder.label}' into one of its own subfolders.`
+            );
+          }
+        }
+      }
+    
+      if (errorMessages.length > 0) {
+        errorMessages.forEach((err) =>
+          this.notify.add({
+            severity: "error",
+            summary: "Error",
+            detail: err,
+            key: "br",
+            sticky: true,
+          })
+        );
+        return;
+      }
+    
+      this.isLoading = true;
+    
       const folderIds = this.selectedFoldersToMove?.map(
         (folder) => folder.data.Id
       );
-      console.log("folderIds", folderIds);
+    
       const foldersToMove: {
         folderId: number;
         parentId: number | undefined;
       }[] =
-        folderIds?.map((folderId) => ({ folderId, parentId: newParentId })) ||
-        [];
-      console.log("foldersToMove", foldersToMove);
+        folderIds?.map((folderId) => ({ folderId, parentId: newParentId })) || [];
+    
       if (foldersToMove.length > 0) {
         this.folderService.updateFolderParents(foldersToMove).then(() => {
           this.onCancelMoveFolders(false);
@@ -568,10 +583,24 @@ export class FoldersComponent implements OnInit, AfterViewInit {
           life: 3000,
         });
         this.isLoading = false;
-        return;
       }
     }
+    
+
+  private isDescendantFolder(
+    parent: TreeNode,
+    potentialChildId: number
+  ): boolean {
+    if (!parent.children) return false;
+  
+    for (const child of parent.children) {
+      if (child.data.Id === potentialChildId) return true;
+      if (this.isDescendantFolder(child, potentialChildId)) return true;
+    }
+  
+    return false;
   }
+  
 
   public onCancelMoveFolders(showError: boolean) {
     console.log("this.selectedFoldersToMove", this.selectedFoldersToMove);
