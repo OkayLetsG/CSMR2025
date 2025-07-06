@@ -681,10 +681,4 @@ export class FoldersComponent implements OnInit, AfterViewInit {
     collectPinned(nodes);
     return pinned;
   }
-
-  public tabChange(event: MenuItem) {
-    this.activeTabItem = event;
-    console.log("activeTabItem", this.activeTabItem);
-    console.log("event", event);
-  }
 }

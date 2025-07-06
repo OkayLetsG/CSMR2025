@@ -1,75 +1,72 @@
-<p-tabMenu 
-  (activeItemChange)="tabChange($event)"
-  [model]="tmItems"
-  [(activeItem)]="activeTabItem">
-
-</p-tabMenu>
-@if(this.activeTabItem?.label === 'EXPLORER') {
-    <p-tree
-      [contextMenu]="cm"
-      [value]="folders"
-      filterMode="lenient"
-      selectionMode="single"
-      [(selection)]="selectedFolder"
-      (onNodeSelect)="nodeSelect()"
-      (onNodeUnselect)="nodeUnselect()"
-      [virtualScroll]="true"
-      [virtualScrollItemSize]="48"
-      [scrollHeight]="windowValues.height - 170 + 'px'"
-      [loading]="isLoading"
-      [loadingIcon]="'pi pi-spin pi-spinner'"
-      [loadingMode]="'icon'"
-      [emptyMessage]="'NO FOLDERS'"
-      (onNodeContextMenuSelect)="nodeContextMenuSelect($event)"
-      [layout]="'vertical'"
-      [style]="{
-        height: '{{this.windowValues.height}}px',
-        overflowY: 'auto',
-        overflowX: 'auto',
-        flex: '1 1 auto',
-        width: '100%',
-        border: '0px',
-        borderRadius: '0px',
-        overflow: 'auto',
-        fontSize: '14px',
-        fontWeight: 'bold'
-      }"
-    >
-    </p-tree>
-}
-@else {
-    <p-tree
-      [contextMenu]="cm"
-      [value]="pinnedFolders"
-      filterMode="lenient"
-      selectionMode="single"
-      [(selection)]="selectedFolder"
-      (onNodeSelect)="nodeSelect()"
-      (onNodeUnselect)="nodeUnselect()"
-      [virtualScroll]="true"
-      [virtualScrollItemSize]="48"
-      [scrollHeight]="windowValues.height - 170 + 'px'"
-      [loading]="isLoading"
-      [loadingIcon]="'pi pi-spin pi-spinner'"
-      [loadingMode]="'icon'"
-      [emptyMessage]="'NO PINNED FOLDERS'"
-      (onNodeContextMenuSelect)="nodeContextMenuSelect($event)"
-      [layout]="'vertical'"
-      [style]="{
-        height: '{{this.windowValues.height - 168}}px',
-        overflowY: 'auto',
-        overflowX: 'auto',
-        flex: '1 1 auto',
-        width: '100%',
-        border: '0px',
-        borderRadius: '0px',
-        overflow: 'auto',
-        fontSize: '14px',
-        fontWeight: 'bold'
-      }"
+<p-tabMenu [model]="tmItems" [(activeItem)]="activeTabItem"> </p-tabMenu>
+<div [hidden]="this.activeTabItem !== this.tmItems[0]">
+  <p-tree
+    [contextMenu]="cm"
+    [value]="folders"
+    filterMode="lenient"
+    selectionMode="single"
+    [(selection)]="selectedFolder"
+    (onNodeSelect)="nodeSelect()"
+    (onNodeUnselect)="nodeUnselect()"
+    [virtualScroll]="true"
+    [virtualScrollItemSize]="48"
+    [scrollHeight]="windowValues.height - 170 + 'px'"
+    [loading]="isLoading"
+    [loadingIcon]="'pi pi-spin pi-spinner'"
+    [loadingMode]="'icon'"
+    [emptyMessage]="'NO FOLDERS'"
+    (onNodeContextMenuSelect)="nodeContextMenuSelect($event)"
+    [layout]="'vertical'"
+    [style]="{
+      height: '{{this.windowValues.height}}px',
+      overflowY: 'auto',
+      overflowX: 'auto',
+      flex: '1 1 auto',
+      width: '100%',
+      border: '0px',
+      borderRadius: '0px',
+      overflow: 'auto',
+      fontSize: '14px',
+      fontWeight: 'bold'
+    }"
+    [style.height]="windowValues.height + 'px'"
   >
   </p-tree>
-}
+</div>
+
+<div [hidden]="this.activeTabItem !== this.tmItems[1]">
+  <p-tree
+    [contextMenu]="cm"
+    [value]="pinnedFolders"
+    filterMode="lenient"
+    selectionMode="single"
+    [(selection)]="selectedFolder"
+    (onNodeSelect)="nodeSelect()"
+    (onNodeUnselect)="nodeUnselect()"
+    [virtualScroll]="true"
+    [virtualScrollItemSize]="48"
+    [scrollHeight]="windowValues.height - 170 + 'px'"
+    [loading]="isLoading"
+    [loadingIcon]="'pi pi-spin pi-spinner'"
+    [loadingMode]="'icon'"
+    [emptyMessage]="'NO PINNED FOLDERS'"
+    (onNodeContextMenuSelect)="nodeContextMenuSelect($event)"
+    [layout]="'vertical'"
+    [style]="{
+      height: '{{this.windowValues.height - 168}}px',
+      overflowY: 'auto',
+      overflowX: 'auto',
+      flex: '1 1 auto',
+      width: '100%',
+      border: '0px',
+      borderRadius: '0px',
+      overflow: 'auto',
+      fontSize: '14px',
+      fontWeight: 'bold'
+    }"
+  >
+  </p-tree>
+</div>
 
 <p-contextMenu #cm [model]="cmItems"> </p-contextMenu>
 
@@ -142,7 +139,7 @@
         (selectedNodeFolder === null && !isAddRootFolder) ||
         (selectedNodeFolder === undefined && !isAddRootFolder)
       "
-      [virtualScroll]="true"
+      [virtualScroll]="false"
       [virtualScrollItemSize]="48"
       [virtualScrollOptions]="{ scrollHeight: '250px' }"
       [filter]="true"
@@ -150,6 +147,7 @@
       variant="outlined"
       appendTo="body"
       [disabled]="isAddRootFolder"
+      [scrollHeight]="'250px'"
     >
     </p-treeSelect>
     <label> Parent Folder </label>
@@ -169,13 +167,14 @@
       [class.ng-dirty]="
         selectedNodeLanguage === null || selectedNodeLanguage === undefined
       "
-      [virtualScroll]="true"
+      [virtualScroll]="false"
       [virtualScrollItemSize]="48"
       [virtualScrollOptions]="{ scrollHeight: '250px' }"
       [filter]="true"
       [filterInputAutoFocus]="true"
       variant="outlined"
       appendTo="body"
+      [scrollHeight]="'250px'"
     >
     </p-treeSelect>
     <label> Select default language </label>
@@ -244,13 +243,14 @@
       [class.ng-dirty]="
         selectedNodeLanguage === null || selectedNodeLanguage === undefined
       "
-      [virtualScroll]="true"
+      [virtualScroll]="false"
       [virtualScrollItemSize]="48"
       [virtualScrollOptions]="{ scrollHeight: '250px' }"
       [filter]="true"
       [filterInputAutoFocus]="true"
       variant="outlined"
       appendTo="body"
+      [scrollHeight]="'250px'"
     >
     </p-treeSelect>
     <label> Select default language </label>
@@ -306,15 +306,16 @@
         selectedFoldersToMove === undefined ||
         selectedFoldersToMove.length === 0
       "
-      [virtualScroll]="true"
+      [virtualScroll]="false"
       [virtualScrollItemSize]="48"
       [virtualScrollOptions]="{ scrollHeight: '250px' }"
-      [filter]="true"
+      [filter]="false"
       [filterInputAutoFocus]="true"
       variant="outlined"
       appendTo="body"
       selectionMode="multiple"
       display="chip"
+      [scrollHeight]="'250px'"
     >
     </p-treeSelect>
     <label> Where </label>
@@ -336,7 +337,7 @@
           [class.ng-dirty]="
             destinationFolder === null || destinationFolder === undefined
           "
-          [virtualScroll]="true"
+          [virtualScroll]="false"
           [virtualScrollItemSize]="48"
           [virtualScrollOptions]="{ scrollHeight: '250px' }"
           [filter]="true"
@@ -344,6 +345,7 @@
           variant="outlined"
           appendTo="body"
           [disabled]="isMoveToRoot"
+          [scrollHeight]="'250px'"
         >
         </p-treeSelect>
         <label>Into</label>
