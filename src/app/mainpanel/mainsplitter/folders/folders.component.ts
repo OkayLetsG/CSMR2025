@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ViewChild } from "@angular/core";
+import { Component, OnInit, AfterViewInit, inject, ViewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { SplitButtonModule } from "primeng/splitbutton";
 import { ButtonModule } from "primeng/button";
@@ -15,7 +15,7 @@ import { FloatLabelModule } from "primeng/floatlabel";
 import { DropdownModule } from "primeng/dropdown";
 import { ContextMenuModule, ContextMenu } from "primeng/contextmenu";
 import { CheckboxModule } from "primeng/checkbox";
-import { TabViewChangeEvent, TabViewModule } from 'primeng/tabview';
+import { TabMenuModule } from 'primeng/tabmenu';
 import {
   TreeNode,
   MessageService,
@@ -49,13 +49,13 @@ import { type ResponsiveModel } from "../../../../models/theme/responsive.model"
     DropdownModule,
     ContextMenuModule,
     CheckboxModule,
-    TabViewModule,
+    TabMenuModule
   ],
   templateUrl: "./folders.component.html",
   styleUrl: "./folders.component.css",
   providers: [MessageService, ConfirmationService],
 })
-export class FoldersComponent implements OnInit {
+export class FoldersComponent implements OnInit, AfterViewInit {
   private folderService = inject(FolderHelperService);
   private languageService = inject(LanguageService);
   private responsiveService = inject(ResponsiveService);
@@ -72,6 +72,7 @@ export class FoldersComponent implements OnInit {
   treeSelect: TreeNode[] = [];
   sbItems: MenuItem[] = [];
   cmItems: MenuItem[] = [];
+  tmItems: MenuItem[] = [];
   filterValue: any;
   addFolderDialogVisible: boolean = false;
   changeFolderDialogVisible: boolean = false;
@@ -90,11 +91,12 @@ export class FoldersComponent implements OnInit {
   selectedFoldersToMove: TreeNode[] | undefined = [];
   multipleTreeSelect: TreeNode[] = [];
   destinationFolder: TreeNode | undefined = undefined;
-  tabIndex: number = 0;
+  activeTabItem: MenuItem | undefined = undefined;
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.setupSplitButton();
     this.setupContextMenu();
+    this.setupTabMenu();
     this.folderService.getFolders();
     this.languageService.loadLanguages();
 
@@ -121,6 +123,10 @@ export class FoldersComponent implements OnInit {
     this.responsiveService.size$.subscribe((size) => {
       this.windowValues = size;
     });
+  }
+
+  public ngAfterViewInit(): void {
+    this.activeTabItem = this.tmItems[0];
   }
 
   public nodeSelect() {
@@ -231,6 +237,16 @@ export class FoldersComponent implements OnInit {
         command: () => this.folderService.sortFoldersDESC(false),
       },
     ];
+  }
+  public setupTabMenu() {
+    this.tmItems = [
+      {
+        label: 'EXPLORER'
+      },
+      {
+        label: 'PINNED FOLDERS'
+      }
+    ]
   }
   public globalAddFolder(isGlobalAdd: boolean) {
     this.showGlobalAddFolderDialog(isGlobalAdd);
@@ -666,11 +682,9 @@ export class FoldersComponent implements OnInit {
     return pinned;
   }
 
-    public tabChange(event: TabViewChangeEvent) {
-      this.tabIndex = event.index;
-
-      if (this.tabIndex === 1) {
-        this.pinnedFolders = [...this.pinnedFolders];
-    }
+  public tabChange(event: MenuItem) {
+    this.activeTabItem = event;
+    console.log("activeTabItem", this.activeTabItem);
+    console.log("event", event);
   }
 }

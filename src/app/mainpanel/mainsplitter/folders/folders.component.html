@@ -1,5 +1,10 @@
-<p-tabView [(activeIndex)]="tabIndex" (onChange)="tabChange($event)">
-  <p-tabPanel [header]="'EXPLORER'">
+<p-tabMenu 
+  (activeItemChange)="tabChange($event)"
+  [model]="tmItems"
+  [(activeItem)]="activeTabItem">
+
+</p-tabMenu>
+@if(this.activeTabItem?.label === 'EXPLORER') {
     <p-tree
       [contextMenu]="cm"
       [value]="folders"
@@ -10,7 +15,7 @@
       (onNodeUnselect)="nodeUnselect()"
       [virtualScroll]="true"
       [virtualScrollItemSize]="48"
-      [scrollHeight]="windowValues.height - 168 + 'px'"
+      [scrollHeight]="windowValues.height - 170 + 'px'"
       [loading]="isLoading"
       [loadingIcon]="'pi pi-spin pi-spinner'"
       [loadingMode]="'icon'"
@@ -31,10 +36,9 @@
       }"
     >
     </p-tree>
-  </p-tabPanel>
-
-  <p-tabPanel [header]="'PINNED'"> 
-     <p-tree
+}
+@else {
+    <p-tree
       [contextMenu]="cm"
       [value]="pinnedFolders"
       filterMode="lenient"
@@ -44,7 +48,7 @@
       (onNodeUnselect)="nodeUnselect()"
       [virtualScroll]="true"
       [virtualScrollItemSize]="48"
-      [scrollHeight]="windowValues.height - 168 + 'px'"
+      [scrollHeight]="windowValues.height - 170 + 'px'"
       [loading]="isLoading"
       [loadingIcon]="'pi pi-spin pi-spinner'"
       [loadingMode]="'icon'"
@@ -52,7 +56,7 @@
       (onNodeContextMenuSelect)="nodeContextMenuSelect($event)"
       [layout]="'vertical'"
       [style]="{
-        height: '{{this.windowValues.height}}px',
+        height: '{{this.windowValues.height - 168}}px',
         overflowY: 'auto',
         overflowX: 'auto',
         flex: '1 1 auto',
@@ -63,10 +67,9 @@
         fontSize: '14px',
         fontWeight: 'bold'
       }"
-    >
-    </p-tree>
-  </p-tabPanel>
-</p-tabView>
+  >
+  </p-tree>
+}
 
 <p-contextMenu #cm [model]="cmItems"> </p-contextMenu>
 
