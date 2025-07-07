@@ -5,7 +5,7 @@ import { ButtonModule } from "primeng/button";
 import { IconFieldModule } from "primeng/iconfield";
 import { InputIconModule } from "primeng/inputicon";
 import { InputTextModule } from "primeng/inputtext";
-import { Tree, TreeModule, TreeNodeContextMenuSelectEvent } from "primeng/tree";
+import { TreeModule, TreeNodeContextMenuSelectEvent } from "primeng/tree";
 import { TreeSelectModule } from "primeng/treeselect";
 import { DialogModule } from "primeng/dialog";
 import { DividerModule } from "primeng/divider";
@@ -16,6 +16,7 @@ import { DropdownModule } from "primeng/dropdown";
 import { ContextMenuModule, ContextMenu } from "primeng/contextmenu";
 import { CheckboxModule } from "primeng/checkbox";
 import { TabMenuModule } from 'primeng/tabmenu';
+import { SkeletonModule } from 'primeng/skeleton';
 import {
   TreeNode,
   MessageService,
@@ -49,7 +50,8 @@ import { type ResponsiveModel } from "../../../../models/theme/responsive.model"
     DropdownModule,
     ContextMenuModule,
     CheckboxModule,
-    TabMenuModule
+    TabMenuModule,
+    SkeletonModule
   ],
   templateUrl: "./folders.component.html",
   styleUrl: "./folders.component.css",
@@ -62,41 +64,39 @@ export class FoldersComponent implements OnInit, AfterViewInit {
   private notify = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   @ViewChild("cm") cm!: ContextMenu;
-  isLoading: boolean = false;
-  folders: TreeNode[] = [];
-  pinnedFolders: TreeNode[] = [];
-  selectedFolder: any;
-  selectedNodeFolder: TreeNode | undefined;
-  selectedNodeLanguage: any;
-  originalFolders: TreeNode[] = [];
-  treeSelect: TreeNode[] = [];
-  sbItems: MenuItem[] = [];
-  cmItems: MenuItem[] = [];
-  tmItems: MenuItem[] = [];
-  filterValue: any;
-  addFolderDialogVisible: boolean = false;
-  changeFolderDialogVisible: boolean = false;
-  isAddRootFolder: boolean = false;
-  userFolderNameValue: string = "";
-  DialogTitle: string = "";
-  DialogDescription: string = "";
-  languages: Language[] = [];
-  languagesAsTreeNodes: TreeNode[] = [];
-  windowValues: ResponsiveModel = {
+  public isLoading: boolean = false;
+  public folders: TreeNode[] = [];
+  public pinnedFolders: TreeNode[] = [];
+  public selectedFolder: any;
+  public selectedNodeFolder: TreeNode | undefined;
+  public selectedNodeLanguage: any;
+  public originalFolders: TreeNode[] = [];
+  public treeSelect: TreeNode[] = [];
+  public cmItems: MenuItem[] = [];
+  public tmItems: MenuItem[] = [];
+  public filterValue: any;
+  public addFolderDialogVisible: boolean = false;
+  public changeFolderDialogVisible: boolean = false;
+  public isAddRootFolder: boolean = false;
+  public userFolderNameValue: string = "";
+  public DialogTitle: string = "";
+  public DialogDescription: string = "";
+  public languages: Language[] = [];
+  public languagesAsTreeNodes: TreeNode[] = [];
+  public windowValues: ResponsiveModel = {
     width: window.innerWidth,
     height: window.innerHeight,
   };
-  moveFolderDialog: boolean = false;
-  isMoveToRoot: boolean = false;
-  selectedFoldersToMove: TreeNode[] | undefined = [];
-  multipleTreeSelect: TreeNode[] = [];
-  destinationFolder: TreeNode | undefined = undefined;
-  activeTabItem: MenuItem | undefined = undefined;
-  copiedFolder: TreeNode | undefined = undefined;
+  public moveFolderDialog: boolean = false;
+  public isMoveToRoot: boolean = false;
+  public selectedFoldersToMove: TreeNode[] | undefined = [];
+  public multipleTreeSelect: TreeNode[] = [];
+  public destinationFolder: TreeNode | undefined = undefined;
+  public activeTabItem: MenuItem | undefined = undefined;
+  public copiedFolder: TreeNode | undefined = undefined;
 
 
   public ngOnInit(): void {
-    this.setupSplitButton();
     this.setupContextMenu();
     this.setupTabMenu();
     this.folderService.getFolders();
@@ -109,7 +109,7 @@ export class FoldersComponent implements OnInit, AfterViewInit {
       this.treeSelect = this.cloneTreeNodes(nodes);
       this.multipleTreeSelect = this.cloneTreeNodes(nodes);
       this.pinnedFolders = this.getPinnedFolders(nodes);
-      console.log("pinned folders", this.pinnedFolders);
+      this.sortPinnedFolders(this.folderService.isFoldersSortedAscending);
       this.isLoading = false;
     });
 
@@ -178,26 +178,6 @@ export class FoldersComponent implements OnInit, AfterViewInit {
       .filter((node) => node !== null) as TreeNode[];
   }
 
-  private setupSplitButton() {
-    this.sbItems = [
-      {
-        label: "Move Folders",
-        icon: "pi pi-fw pi-arrow-right",
-        command: () => this.showMoveFoldersDialog(true),
-      },
-      {
-        label: "Sort Ascending",
-        icon: "pi pi-fw pi-sort-alpha-down",
-        command: () => this.folderService.sortFoldersASC(true),
-      },
-      {
-        label: "Sort Descending",
-        icon: "pi pi-fw pi-sort-alpha-up-alt",
-        command: () => this.folderService.sortFoldersDESC(false),
-      },
-    ];
-  }
-
   private setupContextMenu() {
     this.cmItems = [
       {
@@ -250,12 +230,12 @@ export class FoldersComponent implements OnInit, AfterViewInit {
       {
         label: "Sort Ascending",
         icon: "pi pi-fw pi-sort-alpha-down",
-        command: () => this.folderService.sortFoldersASC(true),
+        command: () => this.sortFolders(true)
       },
       {
         label: "Sort Descending",
         icon: "pi pi-fw pi-sort-alpha-up-alt",
-        command: () => this.folderService.sortFoldersDESC(false),
+        command: () => this.sortFolders(false)
       },
     ];
   }
@@ -849,7 +829,6 @@ export class FoldersComponent implements OnInit, AfterViewInit {
     }
   }
   
-
   private deepCloneNode(node: TreeNode): TreeNode {
     const newNode: TreeNode = {
       ...node,
@@ -861,5 +840,25 @@ export class FoldersComponent implements OnInit, AfterViewInit {
   
     return newNode;
   }
-  
+
+  public sortFolders(isAscended: boolean) {
+    if(isAscended) {
+      this.folderService.sortFoldersASC(isAscended);
+    }
+    else {
+      this.folderService.sortFoldersDESC(isAscended);
+    }
+
+    this.sortPinnedFolders(isAscended);
+  }
+
+  private sortPinnedFolders(isAscended: boolean) {
+    this.pinnedFolders = this.pinnedFolders.sort((a, b) => {
+      const nameA = a?.label?.toLowerCase() ?? "";
+      const nameB = b?.label?.toLowerCase() ?? "";
+      return isAscended
+        ? nameA.localeCompare(nameB)
+        : nameB.localeCompare(nameA);
+    });
+  }
 }

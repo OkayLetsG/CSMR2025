@@ -15,7 +15,7 @@ export class FolderHelperService {
   private dbHelper = inject(DbHelperService);
   private _folders = new BehaviorSubject<TreeNode[]>([]);
   folders$ = this._folders.asObservable();
-  private isFoldersSortedAscending: boolean = true;
+  isFoldersSortedAscending: boolean = true;
   selectedFolder: TreeNode | undefined = undefined;
 
   public async getFolders() : Promise<void> {

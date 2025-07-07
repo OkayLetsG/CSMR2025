@@ -1,5 +1,121 @@
-<p-tabMenu [model]="tmItems" [(activeItem)]="activeTabItem"> </p-tabMenu>
-<div [hidden]="this.activeTabItem !== this.tmItems[0]">
+<div [hidden]="this.isLoading">
+  <p-tabMenu [model]="tmItems" [(activeItem)]="activeTabItem"> </p-tabMenu>
+</div>
+
+<div
+  class="card"
+  [style.padding]="'1rem'"
+  [style.background]="'#fff'"
+  [style.border-radius]="'0px'"
+  [style.border]="'0px'"
+  [style.width]="'100%'"
+  [style.height]="'100%'"
+  [hidden]="!this.isLoading"
+>
+  <div
+    [style.display]="'flex'"
+    [style.align-items]="'center'"
+    [style.margin-bottom]="'1rem'"
+  >
+    <p-skeleton
+      [style.margin-right]="'0.5rem'"
+      [style.border-radius]="'4px'"
+    ></p-skeleton>
+    <p-skeleton [style.flex]="'1'"></p-skeleton>
+  </div>
+  <div
+    [style.display]="'flex'"
+    [style.align-items]="'center'"
+    [style.margin-bottom]="'0.5rem'"
+  >
+    <p-skeleton
+      [style.margin-right]="'0.5rem'"
+      [style.border-radius]="'4px'"
+    ></p-skeleton>
+    <p-skeleton [style.flex]="'1'"></p-skeleton>
+  </div>
+  <div
+    [style.margin-left]="'1.5rem'"
+    [style.padding-left]="'0.5rem'"
+    [style.border-left]="'2px solid #ddd'"
+    [style.margin-bottom]="'1rem'"
+  >
+    <div
+      [style.display]="'flex'"
+      [style.align-items]="'center'"
+      [style.margin-bottom]="'0.5rem'"
+    >
+      <p-skeleton
+        [style.margin-right]="'0.5rem'"
+        [style.border-radius]="'4px'"
+      ></p-skeleton>
+      <p-skeleton [style.flex]="'1'"></p-skeleton>
+    </div>
+    <div [style.display]="'flex'" [style.align-items]="'center'">
+      <p-skeleton
+        [style.margin-right]="'0.5rem'"
+        [style.border-radius]="'4px'"
+      ></p-skeleton>
+      <p-skeleton [style.flex]="'1'"></p-skeleton>
+    </div>
+  </div>
+  <div
+    [style.display]="'flex'"
+    [style.align-items]="'center'"
+    [style.margin-bottom]="'1rem'"
+  >
+    <p-skeleton
+      [style.margin-right]="'0.5rem'"
+      [style.border-radius]="'4px'"
+    ></p-skeleton>
+    <p-skeleton [style.flex]="'1'"></p-skeleton>
+  </div>
+  <div
+    [style.display]="'flex'"
+    [style.align-items]="'center'"
+    [style.margin-bottom]="'0.5rem'"
+  >
+    <p-skeleton
+      [style.margin-right]="'0.5rem'"
+      [style.border-radius]="'4px'"
+    ></p-skeleton>
+    <p-skeleton [style.flex]="'1'"></p-skeleton>
+  </div>
+  <div
+    [style.margin-left]="'1.5rem'"
+    [style.padding-left]="'0.5rem'"
+    [style.border-left]="'2px solid #ddd'"
+    [style.margin-bottom]="'1rem'"
+  >
+    <div
+      [style.display]="'flex'"
+      [style.align-items]="'center'"
+      [style.margin-bottom]="'0.5rem'"
+    >
+      <p-skeleton
+        [style.margin-right]="'0.5rem'"
+        [style.border-radius]="'4px'"
+      ></p-skeleton>
+      <p-skeleton [style.flex]="'1'"></p-skeleton>
+    </div>
+    <div [style.display]="'flex'" [style.align-items]="'center'">
+      <p-skeleton
+        [style.margin-right]="'0.5rem'"
+        [style.border-radius]="'4px'"
+      ></p-skeleton>
+      <p-skeleton [style.flex]="'1'"></p-skeleton>
+    </div>
+  </div>
+  <div [style.display]="'flex'" [style.align-items]="'center'">
+    <p-skeleton
+      [style.margin-right]="'0.5rem'"
+      [style.border-radius]="'4px'"
+    ></p-skeleton>
+    <p-skeleton [style.flex]="'1'"></p-skeleton>
+  </div>
+</div>
+
+<div [hidden]="this.activeTabItem !== this.tmItems[0] || this.isLoading">
   <p-tree
     [contextMenu]="cm"
     [value]="folders"
@@ -35,7 +151,7 @@
   </p-tree>
 </div>
 
-<div [hidden]="this.activeTabItem !== this.tmItems[1]">
+<div [hidden]="this.activeTabItem !== this.tmItems[1] || this.isLoading">
   <p-tree
     [contextMenu]="cm"
     [value]="pinnedFolders"
