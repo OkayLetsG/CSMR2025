@@ -5,7 +5,7 @@ import { ButtonModule } from "primeng/button";
 import { IconFieldModule } from "primeng/iconfield";
 import { InputIconModule } from "primeng/inputicon";
 import { InputTextModule } from "primeng/inputtext";
-import { TreeModule, TreeNodeContextMenuSelectEvent } from "primeng/tree";
+import { Tree, TreeModule, TreeNodeContextMenuSelectEvent } from "primeng/tree";
 import { TreeSelectModule } from "primeng/treeselect";
 import { DialogModule } from "primeng/dialog";
 import { DividerModule } from "primeng/divider";
@@ -92,6 +92,8 @@ export class FoldersComponent implements OnInit, AfterViewInit {
   multipleTreeSelect: TreeNode[] = [];
   destinationFolder: TreeNode | undefined = undefined;
   activeTabItem: MenuItem | undefined = undefined;
+  copiedFolder: TreeNode | undefined = undefined;
+
 
   public ngOnInit(): void {
     this.setupSplitButton();
@@ -204,12 +206,28 @@ export class FoldersComponent implements OnInit, AfterViewInit {
         command: () => this.addFolder(this.selectedFolder as TreeNode, false),
       },
       {
+        separator: true
+      },
+      {
+        label: "Copy",
+        icon: "pi pi-copy",
+        command: () => this.copyFolder(this.selectedFolder as TreeNode),
+      },
+      {
+        label: "Paste",
+        icon: "pi pi-clipboard",
+        command: () => this.pasteFolder(),
+      },
+      {
         label: "Pin",
         icon: "pi pi-bookmark",
       },
       {
         label: "Add Snippet",
         icon: "pi pi-file-plus",
+      },
+      {
+        separator: true
       },
       {
         label: "Move Folder",
@@ -225,6 +243,9 @@ export class FoldersComponent implements OnInit, AfterViewInit {
         label: "Delete",
         icon: "pi pi-fw pi-trash",
         command: () => this.confirmDelete(),
+      },
+      {
+        separator: true
       },
       {
         label: "Sort Ascending",
@@ -600,6 +621,17 @@ export class FoldersComponent implements OnInit, AfterViewInit {
   
     return false;
   }
+
+  private isDescendant(parent: TreeNode, target: TreeNode): boolean {
+    if (!parent.children) return false;
+    for (const child of parent.children) {
+      if (child.key === target.key || this.isDescendant(child, target)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
   
 
   public onCancelMoveFolders(showError: boolean) {
@@ -710,4 +742,124 @@ export class FoldersComponent implements OnInit, AfterViewInit {
     collectPinned(nodes);
     return pinned;
   }
+
+  private copyFolder(node: TreeNode) {
+    if (!node) {
+      this.notify.add({
+        severity: "info",
+        summary: "Information",
+        detail: "No folder selected",
+        key: "br",
+        life: 3000,
+      });
+      this.copiedFolder = undefined;
+      return;
+    }
+  
+    this.copiedFolder = this.deepCloneNode(node);
+    console.log("this.copiedFolder", this.copiedFolder);
+    this.notify.add({
+      severity: "success",
+      summary: "Success",
+      detail: "Folder copied",
+      key: "br",
+      life: 3000,
+    })
+  }
+  
+
+  private async pasteFolder() {
+    if (!this.copiedFolder) {
+      this.notify.add({
+        severity: "info",
+        summary: "Information",
+        detail: "No folder to paste",
+        key: "br",
+        life: 3000,
+      });
+      return;
+    }
+  
+    if (!this.selectedFolder || !this.selectedFolder.data?.Id) {
+      this.notify.add({
+        severity: "info",
+        summary: "Information",
+        detail: "Please select a destination folder",
+        key: "br",
+        life: 3000,
+      });
+      return;
+    }
+
+    if (this.isDescendant(this.copiedFolder, this.selectedFolder)) {
+      this.notify.add({
+        severity: "error",
+        summary: "Error",
+        detail: "Cannot paste a folder into itself or one of its subfolders.",
+        key: "br",
+        life: 3000,
+      });
+      return;
+    }
+    
+  
+    try {
+      this.isLoading = true;
+      await this.pasteFolderRecursively(this.copiedFolder, this.selectedFolder.data.Id);
+      this.isLoading = false;
+  
+      this.notify.add({
+        severity: "success",
+        summary: "Success",
+        detail: "Folder and its subfolders pasted successfully",
+        key: "br",
+        life: 3000,
+      });
+    } catch (error) {
+      console.error(error);
+      this.notify.add({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to paste folder",
+        key: "br",
+        life: 3000,
+      });
+      this.isLoading = false;
+    }
+  }
+  private async pasteFolderRecursively(
+    nodeToCopy: TreeNode,
+    targetParentId: number
+  ): Promise<void> {
+    const now = new Date();
+    const formatted = now.toISOString().slice(2, 16).replace(/[-T:]/g, '');
+    const newFolder: AddFolder = {
+      Name: `${nodeToCopy.label}_copy_${formatted}`,
+      ParentId: targetParentId,
+      LanguageId: nodeToCopy.data.LanguageId,
+      LanguageKey: nodeToCopy.data.DefaultLanguageKey,
+      LanguageName: nodeToCopy.data.DefaultLanguageName
+    };
+  
+    const newId = await this.folderService.addFolder(newFolder);
+    if (nodeToCopy.children && nodeToCopy.children.length > 0) {
+      for (const child of nodeToCopy.children) {
+        await this.pasteFolderRecursively(child, newId);
+      }
+    }
+  }
+  
+
+  private deepCloneNode(node: TreeNode): TreeNode {
+    const newNode: TreeNode = {
+      ...node,
+      data: { ...node.data },
+      children: node.children
+        ? node.children.map(child => this.deepCloneNode(child))
+        : undefined
+    };
+  
+    return newNode;
+  }
+  
 }
