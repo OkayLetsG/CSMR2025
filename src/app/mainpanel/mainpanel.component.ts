@@ -57,20 +57,6 @@ export class MainpanelComponent implements OnInit {
                 separator: true,
               },
               {
-                label: "Copy",
-                icon: "pi pi-copy",
-                //command: () => this.copyFolder(this.selectedFolder as TreeNode),
-              },
-              {
-                label: "Paste",
-                icon: "pi pi-clipboard",
-               // command: () => this.pasteFolder(),
-              },
-              {
-                label: "Pin",
-                icon: "pi pi-bookmark",
-              },
-              {
                 label: "Add Snippet",
                 icon: "pi pi-file-plus",
               },
@@ -80,17 +66,7 @@ export class MainpanelComponent implements OnInit {
               {
                 label: "Move Folder",
                 icon: "pi pi-fw pi-arrow-right",
-               // command: () => this.showMoveFoldersDialog(false),
-              },
-              {
-                label: "Properties",
-                icon: "pi pi-fw pi-pencil",
-               // command: () => this.showChangeFolderDialog(),
-              },
-              {
-                label: "Delete",
-                icon: "pi pi-fw pi-trash",
-               // command: () => this.confirmDelete(),
+               command: () => this.mainsplitterRef?.foldersRef?.showMoveFoldersDialog(true),
               },
               {
                 separator: true,
@@ -98,12 +74,12 @@ export class MainpanelComponent implements OnInit {
               {
                 label: "Sort Ascending",
                 icon: "pi pi-fw pi-sort-alpha-down",
-               // command: () => this.sortFolders(true),
+                command: () => this.mainsplitterRef?.foldersRef?.sortFolders(true),
               },
               {
                 label: "Sort Descending",
                 icon: "pi pi-fw pi-sort-alpha-up-alt",
-               // command: () => this.sortFolders(false),
+                command: () => this.mainsplitterRef?.foldersRef?.sortFolders(false),
               },
             ],
           },

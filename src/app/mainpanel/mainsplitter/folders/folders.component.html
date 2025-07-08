@@ -186,7 +186,7 @@
   </p-tree>
 </div>
 
-<p-contextMenu #cm [model]="cmItems"> </p-contextMenu>
+<p-contextMenu #cm [model]="cmItems" [style]="{fontSize: '14px'}"> </p-contextMenu>
 
 <p-dialog
   [header]="DialogTitle"
@@ -299,17 +299,45 @@
   </p-floatLabel>
 
   <p-footer>
-    <p-button
-      label="Cancel"
-      class="p-button-text"
-      [outlined]="true"
-      (click)="onCancleAddFolder(true)"
-    ></p-button>
-    <p-button
-      label="Save"
-      class="p-button-text"
-      (click)="onSaveGlobalAddFolder()"
-    ></p-button>
+    <div
+      [style]="{
+        display: 'flex',
+        justifyContent: 'space-between',
+        width: '100%',
+        alignItems: 'center'
+      }"
+    >
+      <div>
+        <p-button
+          label="Refresh"
+          icon="pi pi-refresh"
+          iconPos="left"
+          class="p-button-text"
+          [outlined]="true"
+          (onClick)="onRefreshAddFolder()"
+          [style]="{ marginRight: '0.5rem' }"
+          
+        ></p-button>
+      </div>
+      <div>
+        <p-button
+          label="Cancel"
+          icon="pi pi-times"
+          iconPos="left"
+          class="p-button-text"
+          [outlined]="true"
+          [style]="{ marginRight: '0.5rem' }"
+          (click)="onCancleAddFolder(true)"
+        ></p-button>
+        <p-button
+          label="Save"
+          icon="pi pi-check"
+          iconPos="left"
+          class="p-button-text"
+          (click)="onSaveGlobalAddFolder()"
+        ></p-button>
+      </div>
+    </div>
   </p-footer>
 </p-dialog>
 
@@ -375,18 +403,45 @@
   </p-floatLabel>
 
   <p-footer>
-    <p-button
-      label="Cancel"
-      class="p-button-text"
-      [outlined]="true"
-      (click)="onChangeFolderCancel(true)"
-    ></p-button>
-    <p-button
-      label="Save"
-      class="p-button-text"
-      (click)="onChangeFolderSave()"
-    ></p-button>
-  </p-footer>
+    <div
+      [style]="{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '100%'
+      }"
+    >
+      <div>
+        <p-button
+          label="Refresh"
+          icon="pi pi-refresh"
+          iconPos="left"
+          class="p-button-text"
+          (onClick)="onRefreshChangeFolder()"
+          [outlined]="true"
+          [style]="{ marginRight: '0.5rem' }"
+        ></p-button>
+      </div>
+      <div>
+        <p-button
+          label="Cancel"
+          icon="pi pi-times"
+          iconPos="left"
+          class="p-button-text"
+          [outlined]="true"
+          [style]="{ marginRight: '0.5rem' }"
+          (click)="onChangeFolderCancel(true)"
+        ></p-button>
+        <p-button
+          label="Save"
+          icon="pi pi-check"
+          iconPos="left"
+          class="p-button-text"
+          (click)="onChangeFolderSave()"
+        ></p-button>
+      </div>
+    </div>
+  </p-footer>  
 </p-dialog>
 
 <p-dialog
@@ -489,18 +544,46 @@
   </div>
 
   <p-footer>
-    <p-button
-      label="Cancel"
-      class="p-button-text"
-      [outlined]="true"
-      (click)="onCancelMoveFolders(true)"
-    ></p-button>
-    <p-button
-      label="Save"
-      class="p-button-text"
-      (click)="onMoveFolders()"
-    ></p-button>
+    <div
+      [style]="{
+        display: 'flex',
+        justifyContent: 'space-between',
+        width: '100%',
+        alignItems: 'center'
+      }"
+    >
+      <div>
+        <p-button
+          label="Refresh"
+          icon="pi pi-refresh"
+          iconPos="left"
+          class="p-button-text"
+          [outlined]="true"
+          [style]="{ marginRight: '0.5rem' }"
+          (click)="onRefreshMoveFolders()"
+        ></p-button>
+      </div>
+      <div>
+        <p-button
+          label="Cancel"
+          icon="pi pi-times"
+          iconPos="left"
+          class="p-button-text"
+          [outlined]="true"
+          [style]="{ marginRight: '0.5rem' }"
+          (click)="onCancelMoveFolders(true)"
+        ></p-button>
+        <p-button
+          label="Save"
+          icon="pi pi-check"
+          iconPos="left"
+          class="p-button-text"
+          (click)="onMoveFolders()"
+        ></p-button>
+      </div>
+    </div>
   </p-footer>
+  
 </p-dialog>
 
 <p-toast position="bottom-right" key="br"></p-toast>

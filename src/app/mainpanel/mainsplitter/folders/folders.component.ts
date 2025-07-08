@@ -615,9 +615,6 @@ export class FoldersComponent implements OnInit, AfterViewInit {
   
 
   public onCancelMoveFolders(showError: boolean) {
-    console.log("this.selectedFoldersToMove", this.selectedFoldersToMove);
-    console.log("this.destinationFolder", this.destinationFolder);
-
     this.moveFolderDialog = false;
     this.DialogTitle = "";
     this.DialogDescription = "";
@@ -860,5 +857,23 @@ export class FoldersComponent implements OnInit, AfterViewInit {
         ? nameA.localeCompare(nameB)
         : nameB.localeCompare(nameA);
     });
+  }
+
+  public onRefreshAddFolder () {
+    this.isAddRootFolder = false;
+    this.userFolderNameValue = "";
+    this.selectedNodeFolder = undefined;
+    this.selectedNodeLanguage = undefined;
+  }
+
+  public onRefreshChangeFolder () {
+    this.userFolderNameValue = "";
+    this.selectedNodeLanguage = undefined;
+  }
+
+  public onRefreshMoveFolders () {
+    this.selectedFoldersToMove = undefined;
+    this.destinationFolder = undefined;
+    this.isMoveToRoot = false;
   }
 }
