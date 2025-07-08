@@ -94,6 +94,7 @@ export class FolderHelperService {
         })
         .catch((ex: any) => {
           console.error(ex);
+          message('Could not add folder: \n' + ex, { title: 'Error', kind: 'error' });
           reject(ex);
         });
     });
@@ -118,6 +119,7 @@ export class FolderHelperService {
           resolve();
         })
         .catch((error: any) => {
+          message('Could not delete folder: \n' + error, { title: 'Error', kind: 'error' });
           reject(error);
         });
     });
@@ -162,6 +164,7 @@ export class FolderHelperService {
           resolve();
         })
         .catch((error: any) => {
+          message('Could not update folder: \n' + error, { title: 'Error', kind: 'error' });
           reject(error);
         });
     });
@@ -203,6 +206,7 @@ export class FolderHelperService {
         resolve();
       })
       .catch((error: any) => {
+        message('Could not update folder parents: \n' + error, { title: 'Error', kind: 'error' });
         reject(error);
       });
   });
@@ -226,6 +230,7 @@ public async Un_Pin_Folder(folderId: number, isPinned: boolean): Promise<void> {
         resolve();
       })
       .catch((error: any) => {
+        message('Could not update folder parents: \n' + error, { title: 'Error', kind: 'error' });
         reject(error);
       });
   });
