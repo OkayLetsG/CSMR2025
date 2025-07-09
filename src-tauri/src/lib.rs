@@ -37,7 +37,6 @@ pub fn run() {
 									SCREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 									SMODIFIED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 									SFID INTEGER,
-                                    SLNAME TEXT NOT NULL,
                                     SLID INTEGER,
                                     SORDER INTEGER DEFAULT 1,
                                     SGUID TEXT NOT NULL,
@@ -823,7 +822,6 @@ pub fn run() {
                 CREATE INDEX IF NOT EXISTS idx_snippets_sfid ON SNIPPETS(SFID);
                 CREATE INDEX IF NOT EXISTS idx_snippets_slid ON SNIPPETS(SLID);
                 CREATE INDEX IF NOT EXISTS idx_snippets_sguid ON SNIPPETS(SGUID);
-                CREATE INDEX IF NOT EXISTS idx_snippets_slname ON SNIPPETS(SLNAME);
             ",
             kind: MigrationKind::Up,
         },

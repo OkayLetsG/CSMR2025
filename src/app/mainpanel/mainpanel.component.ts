@@ -59,6 +59,7 @@ export class MainpanelComponent implements OnInit {
               {
                 label: "Add Snippet",
                 icon: "pi pi-file-plus",
+                command: () => this.mainsplitterRef?.foldersRef?.showSnippetDialog(),
               },
               {
                 separator: true,

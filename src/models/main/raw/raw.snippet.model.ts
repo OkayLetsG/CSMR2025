@@ -4,8 +4,9 @@ export interface RawSnippet {
     SCREATED_AT: Date;
     SMODIFIED_AT: Date;
     SFID: number;
-    SLNAME: string;
     SLID: number;
+    LNAME: string;
+    LKEY: string;
     SORDER: number;
     SGUID: string;
 }

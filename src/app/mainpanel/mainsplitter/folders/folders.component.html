@@ -583,7 +583,112 @@
       </div>
     </div>
   </p-footer>
-  
+</p-dialog>
+
+
+<p-dialog
+  [header]="DialogTitle"
+  [(visible)]="showAddSnippetDialog"
+  [modal]="true"
+  [draggable]="false"
+  [style]="{ width: '50rem', height: '26rem', overflow: 'auto' }"
+  [contentStyle]="{ padding: '1.5rem' }"
+  [dismissableMask]="false"
+  [closable]="false"
+  [maximizable]="true"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [resizable]="true"
+>
+  @if(DialogDescription.length > 0) {
+  <p>
+    {{ DialogDescription }}
+  </p>
+  }
+  <p-floatLabel style="flex: 1">
+    <input
+      type="text"
+      pInputText
+      [(ngModel)]="userAddSnippetName"
+      style="width: 100%"
+      [class.ng-invalid]="
+        userAddSnippetName === '' || userAddSnippetName === undefined
+      "
+      [class.ng-dirty]="
+        userAddSnippetName === '' || userAddSnippetName === undefined
+      "
+    />
+    <label>Snippet Name</label>
+  </p-floatLabel>
+
+  <p-divider></p-divider>
+  <p-floatLabel>
+    <p-treeSelect
+      [placeholder]="'Select parent folder'"
+      [(ngModel)]="selectedNodeFolder"
+      [options]="treeSelect"
+      [containerStyle]="{ width: '100%' }"
+      [class.ng-invalid]="
+        selectedNodeFolder === null ||
+        selectedNodeFolder === undefined
+      "
+      [class.ng-dirty]="
+        selectedNodeFolder === null ||
+        selectedNodeFolder === undefined
+      "
+      [virtualScroll]="false"
+      [virtualScrollItemSize]="48"
+      [virtualScrollOptions]="{ scrollHeight: '250px' }"
+      [filter]="true"
+      [filterInputAutoFocus]="true"
+      variant="outlined"
+      appendTo="body"
+      [scrollHeight]="'250px'"
+    >
+    </p-treeSelect>
+    <label> Parent Folder </label>
+  </p-floatLabel>
+
+  <p-footer>
+    <div
+      [style]="{
+        display: 'flex',
+        justifyContent: 'space-between',
+        width: '100%',
+        alignItems: 'center'
+      }"
+    >
+      <div>
+        <p-button
+          label="Refresh"
+          icon="pi pi-refresh"
+          iconPos="left"
+          class="p-button-text"
+          [outlined]="true"
+          (onClick)="onRefreshSnippet()"
+          [style]="{ marginRight: '0.5rem' }"
+          
+        ></p-button>
+      </div>
+      <div>
+        <p-button
+          label="Cancel"
+          icon="pi pi-times"
+          iconPos="left"
+          class="p-button-text"
+          [outlined]="true"
+          [style]="{ marginRight: '0.5rem' }"
+          (click)="onCancelSaveSnippet(true)"
+        ></p-button>
+        <p-button
+          label="Save"
+          icon="pi pi-check"
+          iconPos="left"
+          class="p-button-text"
+          (click)="onSaveSnippet()"
+        ></p-button>
+      </div>
+    </div>
+  </p-footer>
 </p-dialog>
 
 <p-toast position="bottom-right" key="br"></p-toast>

@@ -4,6 +4,7 @@ export interface Snippet {
     CreatedAt: Date;
     ModifiedAt: Date;
     FolderId: number;
+    LanguageId: number;
     LanguageKey: string;
     LanguageName: string;
     Order: number;

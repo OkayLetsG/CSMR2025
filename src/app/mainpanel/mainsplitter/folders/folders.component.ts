@@ -29,7 +29,7 @@ import { type Language } from "../../../../models/main/base/language.model";
 import { type AddFolder } from "../../../../models/main/base/addFolder.model";
 import { ResponsiveService } from "../../../../services/theme/responsive.service";
 import { type ResponsiveModel } from "../../../../models/theme/responsive.model";
-
+import { SnippetHelperService } from "../../../../services/main/snippet-helper.service";
 @Component({
   selector: "app-folders",
   standalone: true,
@@ -63,6 +63,7 @@ export class FoldersComponent implements OnInit, AfterViewInit {
   private responsiveService = inject(ResponsiveService);
   private notify = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+  private snippetService = inject(SnippetHelperService);
   @ViewChild("cm") cm!: ContextMenu;
   public isLoading: boolean = false;
   public folders: TreeNode[] = [];
@@ -94,7 +95,8 @@ export class FoldersComponent implements OnInit, AfterViewInit {
   public destinationFolder: TreeNode | undefined = undefined;
   public activeTabItem: MenuItem | undefined = undefined;
   public copiedFolder: TreeNode | undefined = undefined;
-
+  public userAddSnippetName: string = "";
+  public showAddSnippetDialog: boolean = false;
 
   public ngOnInit(): void {
     this.setupContextMenu();
@@ -205,6 +207,7 @@ export class FoldersComponent implements OnInit, AfterViewInit {
       {
         label: "Add Snippet",
         icon: "pi pi-file-plus",
+        command: () => this.showSnippetDialog()
       },
       {
         separator: true
@@ -875,5 +878,66 @@ export class FoldersComponent implements OnInit, AfterViewInit {
     this.selectedFoldersToMove = undefined;
     this.destinationFolder = undefined;
     this.isMoveToRoot = false;
+  }
+
+  public showSnippetDialog() {
+    this.DialogTitle = "New Snippet";
+    this.DialogDescription = "";
+    this.showAddSnippetDialog = true;
+    if(this.selectedFolder) {
+      this.selectedNodeFolder = this.deepCloneNode(this.selectedFolder);
+    }
+  }
+
+  public onSaveSnippet() {
+    const errors: string[] = [];
+    if(!this.userAddSnippetName || this.userAddSnippetName === "") {
+      errors.push("Please enter a snippet name");
+    }
+    if(this.selectedNodeFolder === null || this.selectedNodeFolder === undefined) {
+      errors.push("Please select a folder");
+    }
+    if(errors.length > 0) {
+      errors.forEach(err => this.notify.add({
+        severity: "error",
+        summary: "Error",
+        detail: err,
+        key: "br",
+        sticky: true
+      }));
+      return;
+    }
+    this.snippetService.addSnippet(this.selectedNodeFolder?.data.Id, this.userAddSnippetName).then(() => {
+      this.notify.add({
+        severity: "success",
+        summary: "Success",
+        detail: "Snippet added",
+        key: "br",
+        life: 3000
+      });
+      this.onCancelSaveSnippet(false);
+    })
+  }
+
+  public onCancelSaveSnippet(showError: boolean) {
+    this.userAddSnippetName = "";
+    this.showAddSnippetDialog = false;
+    this.selectedNodeFolder = undefined;
+    this.DialogTitle = "";
+    this.DialogDescription = "";
+    if(showError) {
+      this.notify.add({
+        severity: "info",
+        summary: "Information",
+        detail: "Snippet creation canceled",
+        key: "br",
+        life: 3000
+      });
+    }
+  }
+
+  public onRefreshSnippet() {
+    this.userAddSnippetName = "";
+    this.selectedNodeFolder = undefined;
   }
 }
