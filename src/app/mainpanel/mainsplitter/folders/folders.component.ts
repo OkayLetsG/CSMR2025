@@ -30,6 +30,7 @@ import { type AddFolder } from "../../../../models/main/base/addFolder.model";
 import { ResponsiveService } from "../../../../services/theme/responsive.service";
 import { type ResponsiveModel } from "../../../../models/theme/responsive.model";
 import { SnippetHelperService } from "../../../../services/main/snippet-helper.service";
+import { Folder } from "../../../../models/main/base/folder.model";
 @Component({
   selector: "app-folders",
   standalone: true,
@@ -139,6 +140,7 @@ export class FoldersComponent implements OnInit, AfterViewInit {
     const selectedFolder: TreeNode | undefined =
       this.folderService.selectedFolder;
     console.log("clicked Folder: ", cickedFolder);
+    this.snippetService.loadSnippets(cickedFolder?.data.Id);
   }
 
   public nodeUnselect() {
@@ -907,7 +909,19 @@ export class FoldersComponent implements OnInit, AfterViewInit {
       }));
       return;
     }
-    this.snippetService.addSnippet(this.selectedNodeFolder?.data.Id, this.userAddSnippetName).then(() => {
+    if(this.folderService.selectedFolder === undefined) {
+      this.notify.add({
+        severity: "error",
+        summary: "Error",
+        detail: "Please select a folder",
+        key: "br",
+        life: 3000
+      });
+      return;
+    }
+    const folder = this.folderService.selectedFolder!.data as Folder;
+    const folderFromSelectedNode = this.selectedNodeFolder!.data as Folder;
+    this.snippetService.addSnippet(folder, folderFromSelectedNode, this.userAddSnippetName).then(() => {
       this.notify.add({
         severity: "success",
         summary: "Success",

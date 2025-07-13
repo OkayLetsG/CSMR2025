@@ -1,0 +1,64 @@
+.ui-listbox-list {
+    padding: 0;
+    background-color: transparent;
+    border: none;
+  }
+  
+  .ui-listbox-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-radius: 4px;
+    margin: 8px 0;
+    padding: 10px;
+    transition: background-color 0.2s ease-in-out;
+    cursor: pointer;
+  }
+
+  .snippet-card {
+    display: flex;
+    flex-direction: column;
+    border: none;
+    width: 100%;
+  }
+  
+  .snippet-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    p {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    #p1 {
+      text-align: left;
+    }
+
+    #p2 {
+      text-align: right;
+    }
+  }
+  
+  .snippet-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+  
+  .snippet-language {
+    font-weight: bold;
+  }
+  
+  .snippet-createdAt {
+    font-style: italic;
+    text-align: right;
+  }
+
+  .snippet-modifiedAt {
+    font-style: italic;
+    text-align: right;
+  }
+  
