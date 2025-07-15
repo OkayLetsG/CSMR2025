@@ -17,7 +17,7 @@
     (onChange)="selectSnippet($event)"
   >
     <ng-template let-snippet pTemplate="item">
-      <div class="snippet-card">
+      <div class="snippet-card" (contextmenu)="onRightClick($event, snippet)">
         <div class="snippet-title">
           <p id="p1">{{ snippet.Title }}</p>
           <p id="p2">({{ snippet.CreatedAt | date: 'shortDate' }})</p>
@@ -31,3 +31,7 @@
       </div>
     </ng-template>
   </p-listbox>
+
+  <p-contextMenu #listBoxCm [model]="cmItems" [style]="{fontSize: '14px'}"></p-contextMenu>
+  <p-toast position="bottom-right" key="br"></p-toast>
+

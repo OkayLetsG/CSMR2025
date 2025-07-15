@@ -14,6 +14,17 @@ export class SnippetHelperService {
   private dbHelper = inject(DbHelperService);
   private _snippets = new BehaviorSubject<Snippet[]>([]);
   snippets$ = this._snippets.asObservable();
+  private _selectedSnippet = new BehaviorSubject<Snippet | undefined>(undefined);
+  selectedSnippet$ = this._selectedSnippet.asObservable();
+  private _copiedSnippet = new BehaviorSubject<Snippet | undefined>(undefined);
+  copiedSnippet$ = this._copiedSnippet.asObservable();
+
+  public async setSnippet(snippet: Snippet | undefined): Promise<void> {
+    this._selectedSnippet.next(snippet);
+  }
+  public async setCopiedSnippet(snippet: Snippet | undefined): Promise<void> {
+    this._copiedSnippet.next(snippet);
+  }
 
   public async loadSnippets(folderId: number): Promise<void> {
     if (!this.dbHelper.db) {
@@ -120,5 +131,47 @@ export class SnippetHelperService {
       });
       return 1;
     }
-  } 
+  }
+
+  public async pasteSnippet(snippet: Snippet, folder: Folder): Promise<void> {
+    try{
+      console.log("snippet222: ", snippet);
+      const timestamp = new Date();
+      const guid = uuid();
+      const sql = `
+        INSERT INTO SNIPPETS (STITLE, SFID, SGUID, SCREATED_AT, SMODIFIED_AT, SLID, SORDER)
+        SELECT
+          '${snippet.Title}_copy' as TITLE,
+          ${folder.Id} as FOLDER_ID,
+          '${guid}' as GUID,
+          '${timestamp.toISOString()}' as CREATED_AT,
+          '${timestamp.toISOString()}' as MODIFIED_AT,
+          ${folder.LanguageId} as LANGUAGE_ID,
+          COALESCE((SELECT MAX(SORDER) + 1 FROM SNIPPETS WHERE SFID = ${folder.Id}), 1)
+      `;
+     const result:any = await this.dbHelper.db.execute(sql);
+     const orderNumber = await this.getNewOrderNumber(folder.Id);
+     const newSnippet: Snippet = {
+       Id: result.lastInsertId,
+       Title: snippet.Title + "_copy",
+       CreatedAt: timestamp,
+       ModifiedAt: timestamp,
+       FolderId: folder.Id,
+       LanguageId: folder.LanguageId,
+       LanguageKey: folder.DefaultLanguageKey,
+       LanguageName: folder.DefaultLanguageName,
+       Order: orderNumber,
+       Guid: guid
+     };
+     const current = this._snippets.value;
+     const doesSnippetBelongToSameFolder = current.some(snippet => snippet.FolderId === folder.Id);
+     if(doesSnippetBelongToSameFolder) {
+        this._snippets.next([...current, newSnippet]);
+     }
+    }
+    catch(error: any) {
+      await message("Could not paste snippet: \n" + error, { title: "Error", kind: "error" });
+      throw error;
+    }
+  }
 }
