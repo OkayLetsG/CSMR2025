@@ -174,4 +174,22 @@ export class SnippetHelperService {
       throw error;
     }
   }
+
+  public async deleteSnippet(snippet: Snippet) {
+    try {
+      const sql = `DELETE FROM SNIPPETS WHERE SID = ${snippet.Id}`; 
+      await this.dbHelper.db.execute(sql);
+  
+      const current = this._snippets.value;
+      const updatedSnippets = current.filter(s => s.Id !== snippet.Id);
+      this._snippets.next(updatedSnippets);
+    } catch (error: any) {
+      await message("Could not delete snippet: \n" + error, {
+        title: "Error",
+        kind: "error"
+      });
+      throw error;
+    }
+  }
+  
 }

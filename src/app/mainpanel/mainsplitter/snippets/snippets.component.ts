@@ -7,12 +7,12 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ListboxChangeEvent, ListboxModule } from 'primeng/listbox';
 import { ContextMenuModule, ContextMenu } from "primeng/contextmenu";
-import { MenuItem } from "primeng/api";
+import { MenuItem, ConfirmationService } from "primeng/api";
 import { MessageService } from 'primeng/api';
 import { FolderHelperService } from "../../../../services/main/folder-helper.service";
 import { Folder } from "../../../../models/main/base/folder.model";
 import { ToastModule } from "primeng/toast";
-
+import { ConfirmDialogModule } from "primeng/confirmdialog";
 
 @Component({
   selector: "app-snippets",
@@ -22,16 +22,18 @@ import { ToastModule } from "primeng/toast";
     FormsModule,
     ListboxModule,
     ContextMenuModule,
-    ToastModule
+    ToastModule,
+    ConfirmDialogModule
   ],
   templateUrl: "./snippets.component.html",
   styleUrl: "./snippets.component.css",
-  providers: [MessageService]
+  providers: [MessageService, ConfirmationService]
 })
 export class SnippetsComponent implements OnInit {
   private snippetService = inject(SnippetHelperService);
   private responsiveService = inject(ResponsiveService);
   private folderService = inject(FolderHelperService);
+  private confirmationService = inject(ConfirmationService);
   private notify = inject(MessageService);
   public snippets: Snippet[] = [];
   public windowValues: ResponsiveModel = {
@@ -65,6 +67,14 @@ export class SnippetsComponent implements OnInit {
         label: "Paste",
         icon: "pi pi-clipboard",
         command: () => this.pasteSnippet()
+      },
+      {
+        separator: true
+      },
+      {
+        label: "Delete",
+        icon: "pi pi-trash",
+        command: () => this.confirmDeleteSnippet()
       }
     ]
   }
@@ -106,7 +116,34 @@ export class SnippetsComponent implements OnInit {
     if(folder === undefined || folder === null) {
       this.notify.add({severity: "error", summary: "Error", detail: "Please select a folder", key: "br", life: 3000});
     }
-    this.snippetService.pasteSnippet(this.copiedSnippet!, folder);
-    this.notify.add({severity: "success", summary: "Success", detail: "Snippet pasted", key: "br", life: 3000});
+    this.snippetService.pasteSnippet(this.copiedSnippet!, folder).then(() => {
+      this.notify.add({severity: "success", summary: "Success", detail: "Snippet pasted", key: "br", life: 3000});
+    })
+    
+  }
+
+  private confirmDeleteSnippet() {
+    this.confirmationService.confirm({
+      message: "Are you sure you want to delete this snippet?",
+      header: "Delete Snippet",
+      icon: "pi pi-exclamation-triangle",
+      acceptIcon: "none",
+      rejectIcon: "none",
+      acceptLabel: "Yes",
+      rejectLabel: "No",
+      rejectButtonStyleClass: "p-button-outlined",
+      accept: () => {
+        if(this.selectedSnippet === undefined || this.selectedSnippet === null) {
+          this.notify.add({severity: "error", summary: "Error", detail: "Please select a snippet to delete", key: "br", life: 3000});
+          return;
+        }
+        this.snippetService.deleteSnippet(this.selectedSnippet).then(() => {
+          this.notify.add({severity: "success", summary: "Success", detail: "Snippet deleted", key: "br", life: 3000});
+        });
+      },
+      reject: () => {
+        this.notify.add({severity: "info", summary: "Info", detail: "Snippet not deleted", key: "br", life: 3000});
+      }
+    })
   }
 }
