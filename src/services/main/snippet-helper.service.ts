@@ -6,6 +6,7 @@ import { type RawSnippet } from "../../models/main/raw/raw.snippet.model";
 import { v4 as uuid } from "uuid";
 import { message } from "@tauri-apps/plugin-dialog";
 import { Folder } from "../../models/main/base/folder.model";
+import { Language } from "../../models/main/base/language.model";
 
 @Injectable({
   providedIn: "root",
@@ -192,4 +193,25 @@ export class SnippetHelperService {
     }
   }
   
+  public async changeSnippet(snippet: Snippet, newName: string, newLanguage: Language) {
+    try {
+      const sql = `UPDATE SNIPPETS SET STITLE = ?, SLID = ? WHERE SID = ?`; 
+      await this.dbHelper.db.execute(sql, [newName, newLanguage.Id, snippet.Id]);
+  
+      const current = this._snippets.value;
+      const updatedSnippets = current.map(s => {
+        if (s.Id === snippet.Id) {
+          return { ...s, Title: newName, LanguageId: newLanguage.Id, LanguageKey: newLanguage.Key, LanguageName: newLanguage.Name };
+        }
+        return s;
+      });
+      this._snippets.next(updatedSnippets);
+    } catch (error: any) {
+      await message("Could not change snippet: \n" + error, {
+        title: "Error",
+        kind: "error"
+      });
+      throw error;
+    }
+  }
 }

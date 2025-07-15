@@ -1,4 +1,5 @@
-<p-listbox
+<div [hidden]="this.snippets.length === 0">
+  <p-listbox
     [(ngModel)]="selectedSnippet"
     [options]="snippets"
     [style]="{
@@ -20,19 +21,130 @@
       <div class="snippet-card" (contextmenu)="onRightClick($event, snippet)">
         <div class="snippet-title">
           <p id="p1">{{ snippet.Title }}</p>
-          <p id="p2">({{ snippet.CreatedAt | date: 'shortDate' }})</p>
+          <p id="p2">({{ snippet.CreatedAt | date : "shortDate" }})</p>
         </div>
         <div class="snippet-meta">
           <span class="snippet-language">{{ snippet.LanguageName }}</span>
           <span class="snippet-modifiedAt">
-            Last: {{ snippet.ModifiedAt | date: 'shortDate' }}
+            Last: {{ snippet.ModifiedAt | date : "shortDate" }}
           </span>
         </div>
       </div>
     </ng-template>
   </p-listbox>
+</div>
 
-  <p-contextMenu #listBoxCm [model]="cmItems" [style]="{fontSize: '14px'}"></p-contextMenu>
-  <p-toast position="bottom-right" key="br"></p-toast>
-  <p-confirmDialog />
+<div [hidden]="this.snippets.length !== 0">
+  <p>No Snippets</p>
+  <p>Add a Snippet or click a folder</p>
+</div>
 
+<p-dialog
+  [header]="DialogTitle"
+  [(visible)]="showChangeSnippetDialog"
+  [modal]="true"
+  [draggable]="false"
+  [style]="{ width: '50rem', height: '26rem', overflow: 'auto' }"
+  [contentStyle]="{ padding: '1.5rem' }"
+  [dismissableMask]="false"
+  [closable]="false"
+  [maximizable]="true"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [resizable]="true"
+>
+  @if(DialogDescription.length > 0) {
+  <p>
+    {{ DialogDescription }}
+  </p>
+  }
+
+  <p-floatLabel>
+    <input
+      type="text"
+      pInputText
+      [(ngModel)]="userSnippetNameValue"
+      style="width: 100%"
+      [class.ng-invalid]="
+        userSnippetNameValue === '' || userSnippetNameValue === undefined
+      "
+      [class.ng-dirty]="
+        userSnippetNameValue === '' || userSnippetNameValue === undefined
+      "
+    />
+    <label>Snippet Name</label>
+  </p-floatLabel>
+  <p-divider></p-divider>
+  <p-floatLabel>
+    <p-treeSelect
+      [placeholder]="'Select language'"
+      [(ngModel)]="selectedNodeLanguage"
+      [options]="languagesAsTreeNodes"
+      [containerStyle]="{ width: '100%' }"
+      [class.ng-invalid]="
+        selectedNodeLanguage === null || selectedNodeLanguage === undefined
+      "
+      [class.ng-dirty]="
+        selectedNodeLanguage === null || selectedNodeLanguage === undefined
+      "
+      [virtualScroll]="false"
+      [virtualScrollItemSize]="48"
+      [virtualScrollOptions]="{ scrollHeight: '250px' }"
+      [filter]="true"
+      [filterInputAutoFocus]="true"
+      variant="outlined"
+      appendTo="body"
+      [scrollHeight]="'250px'"
+    >
+    </p-treeSelect>
+    <label> Language </label>
+  </p-floatLabel>
+  <p-footer>
+    <div
+      [style]="{
+        display: 'flex',
+        justifyContent: 'space-between',
+        width: '100%',
+        alignItems: 'center'
+      }"
+    >
+      <div>
+        <p-button
+          label="Refresh"
+          icon="pi pi-refresh"
+          iconPos="left"
+          class="p-button-text"
+          [outlined]="true"
+          (onClick)="onRefreshSnippet()"
+          [style]="{ marginRight: '0.5rem' }"
+          
+        ></p-button>
+      </div>
+      <div>
+        <p-button
+          label="Cancel"
+          icon="pi pi-times"
+          iconPos="left"
+          class="p-button-text"
+          [outlined]="true"
+          [style]="{ marginRight: '0.5rem' }"
+          (click)="onCancelChangedSnippet(true)"
+        ></p-button>
+        <p-button
+          label="Save"
+          icon="pi pi-check"
+          iconPos="left"
+          class="p-button-text"
+          (click)="onSaveChangedSnippet()"
+        ></p-button>
+      </div>
+    </div>
+  </p-footer>
+</p-dialog>
+
+<p-contextMenu
+  #listBoxCm
+  [model]="cmItems"
+  [style]="{ fontSize: '14px' }"
+></p-contextMenu>
+<p-toast position="bottom-right" key="br"></p-toast>
+<p-confirmDialog />

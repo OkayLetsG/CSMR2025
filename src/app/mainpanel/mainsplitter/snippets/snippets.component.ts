@@ -7,12 +7,22 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ListboxChangeEvent, ListboxModule } from 'primeng/listbox';
 import { ContextMenuModule, ContextMenu } from "primeng/contextmenu";
-import { MenuItem, ConfirmationService } from "primeng/api";
+import { MenuItem, ConfirmationService, TreeNode } from "primeng/api";
 import { MessageService } from 'primeng/api';
 import { FolderHelperService } from "../../../../services/main/folder-helper.service";
 import { Folder } from "../../../../models/main/base/folder.model";
 import { ToastModule } from "primeng/toast";
 import { ConfirmDialogModule } from "primeng/confirmdialog";
+import { DialogModule } from "primeng/dialog";
+import { Language } from "../../../../models/main/base/language.model";
+import { LanguageService } from "../../../../services/main/language.service";
+import { TreeSelectModule } from "primeng/treeselect";
+import { FloatLabelModule } from "primeng/floatlabel";
+import { IconFieldModule } from "primeng/iconfield";
+import { InputIconModule } from "primeng/inputicon";
+import { InputTextModule } from "primeng/inputtext";
+import { DividerModule } from "primeng/divider";
+import { ButtonModule } from "primeng/button";
 
 @Component({
   selector: "app-snippets",
@@ -23,7 +33,15 @@ import { ConfirmDialogModule } from "primeng/confirmdialog";
     ListboxModule,
     ContextMenuModule,
     ToastModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    DialogModule,
+    TreeSelectModule,
+    FloatLabelModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
+    DividerModule,
+    ButtonModule
   ],
   templateUrl: "./snippets.component.html",
   styleUrl: "./snippets.component.css",
@@ -35,6 +53,7 @@ export class SnippetsComponent implements OnInit {
   private folderService = inject(FolderHelperService);
   private confirmationService = inject(ConfirmationService);
   private notify = inject(MessageService);
+  private languageService = inject(LanguageService);
   public snippets: Snippet[] = [];
   public windowValues: ResponsiveModel = {
     width: window.innerWidth,
@@ -44,7 +63,15 @@ export class SnippetsComponent implements OnInit {
   public selectedRightClickedSnippet: Snippet | undefined;
   public cmItems: MenuItem[] = [];
   public copiedSnippet: Snippet | undefined;
+  public showChangeSnippetDialog: boolean = false;
+  public userSnippetNameValue: string = "";
+  public userLanguage: Language | undefined= undefined;
+  public languagesAsTreeNodes: TreeNode[] = [];
+  public DialogTitle: string = "";
+  public DialogDescription: string = "";
+  public selectedNodeLanguage: TreeNode | undefined = undefined;
   @ViewChild("listBoxCm") cm!: ContextMenu
+
   public ngOnInit(): void {
     this.setupContextMenu();
     this.snippetService.snippets$.subscribe((s) => {
@@ -54,6 +81,10 @@ export class SnippetsComponent implements OnInit {
 
     this.responsiveService.size$.subscribe((size) => {
       this.windowValues = size;
+    });
+
+    this.languageService.availableLanguagesAsTreeNodes$.subscribe((l) => {
+      this.languagesAsTreeNodes = l;
     });
   }
   private setupContextMenu() {
@@ -70,6 +101,11 @@ export class SnippetsComponent implements OnInit {
       },
       {
         separator: true
+      },
+      {
+        label: "Change",
+        icon: "pi pi-pencil",
+        command: () => this.openChangeSnippetDialog(false)
       },
       {
         label: "Delete",
@@ -144,6 +180,57 @@ export class SnippetsComponent implements OnInit {
       reject: () => {
         this.notify.add({severity: "info", summary: "Info", detail: "Snippet not deleted", key: "br", life: 3000});
       }
-    })
+    });
+  }
+  public openChangeSnippetDialog(isGlobal: boolean) {
+    this.DialogTitle = "Change snippet";
+    this.DialogDescription = "";
+    if(isGlobal) {
+      this.userSnippetNameValue = "";
+      this.selectedNodeLanguage = undefined;
+    }
+    else {
+      this.userSnippetNameValue = this.selectedSnippet?.Title!;
+      const selectedSnippetLanguage = this.languagesAsTreeNodes.find(l => l.data.Key === this.selectedSnippet?.LanguageKey);
+      this.selectedNodeLanguage = selectedSnippetLanguage;
+    }
+    this.showChangeSnippetDialog = true;
+  }
+
+  public onSaveChangedSnippet() {
+    const errors: string[] = [];
+    if(this.selectedNodeLanguage === undefined || this.selectedNodeLanguage === null) {
+      errors.push("Please select a language");
+    }
+    if(this.userSnippetNameValue === "" || this.userSnippetNameValue === undefined) {
+      errors.push("Please enter a snippet name");
+    }
+    if(errors.length > 0) {
+      errors.forEach(err => this.notify.add({severity: "error", summary: "Error", detail: err, key: "br", sticky: true}));
+      return;
+    }
+    const language = this.selectedNodeLanguage?.data as Language;
+    this.snippetService.changeSnippet(this.selectedSnippet!, this.userSnippetNameValue, language).then(() => {
+      this.onCancelChangedSnippet(false);
+    });
+  }
+
+  public onCancelChangedSnippet(showError: boolean) {
+    this.showChangeSnippetDialog = false;
+    this.userSnippetNameValue = "";
+    this.selectedNodeLanguage = undefined;
+    this.DialogTitle = "";
+    this.DialogDescription = "";
+    if(showError) {
+      this.notify.add({severity: "info", summary: "Info", detail: "Snippet change canceled", key: "br", life: 3000});
+    }
+    else {
+      this.notify.add({severity: "success", summary: "Success", detail: "Snippet changed", key: "br", life: 3000});
+    }
+  }
+
+  public onRefreshSnippet() {
+    this.userSnippetNameValue = "";
+    this.selectedNodeLanguage = undefined;
   }
 }
